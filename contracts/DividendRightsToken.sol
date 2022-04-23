@@ -87,6 +87,18 @@ contract DividendRightsToken is
         );
     }
 
+    /// @dev Determine if distribution should be paid out
+    function checkDistribution() external public {
+       OptimisticOracleInterface oracle = _getOptimisticOracle();
+       address requester = address(this);
+       bytes ancillaryData = "encoded question";
+       bytes32 identifier = "price identifier to identify the existing request";
+       uint256 timestamp = getCurrentTime();
+       int256 proposedPrice = 1;
+       oracle.proposePrice(requester, identifier, timestamp, ancillaryData, proposedPrice); //→ uint256 totalBond (external) 
+
+    }
+
     /// @dev Distribute `amount` of cash among all token holders
     function distribute(uint256 cashAmount) external onlyOwner {
         (uint256 actualCashAmount,) = _ida.calculateDistribution(
