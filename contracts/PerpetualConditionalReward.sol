@@ -6,11 +6,11 @@ import {
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol";
 // import uma
 
-contract Rally {
+contract PerpetualConditionalReward {
 
   // address uma;
 
-  constructor(address _supfluidHost, address _umaOracle) public {
+  constructor() public {
     // instantiate (deploy) the IDA
     // for that we need the address of the host
 
