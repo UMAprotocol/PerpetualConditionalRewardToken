@@ -17,13 +17,13 @@
   <label>Units: </label> <span id="units">0</span><br/>
   <label>Approved: </label> <span id="approved">no</span><br/>
   <label>Pending Distribution: </label> <span id="pendingDistribution">0</span><br/>
-  <button onclick="approve()">Approve</button><br/>
-  <button onclick="claim()">Claim</button><br/>
+  <button onclick="approve()">Approve reward token for squad goals</button><br/>
+  <button onclick="checkOracle()">Claim squal goals on behalf of squad</button><br/>
   <hr/>
   <h1>Issuer</h1>
   <label>Issuer address: </label> <span id="issuer"></span><br/>
   <label>Distribution Amount: </label> <input type="number" id="amount" value=100><br/>
-  <button onclick="checkOracle()">Distribute</button><br/>
+  <button onclick="distribute()">Distribute</button><br/>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js" crossorigin="anonymous"></script>
   <script>if (typeof module === "undefined") module = {};</script>
@@ -35,7 +35,7 @@
 
     const DEPLOYED_DIVIDEND_RIGHTS_TOKENS = {
         5: "0x39aA80Fc05eD0b3549be279589Fc67f06b7e35EE", // goerli
-        42: "0x3BdB803969E668698f0CEAc9Cf17721cF93B7953", // kovan
+        42: "0xdF357A63Ea177222ab0f278201F44225272d1444", // kovan
     }
     async function main() {
         await ethereum.enable();
@@ -114,8 +114,9 @@
         await refreshBalance();
     }
     async function checkOracle() {
-        drt.methods.checkDistribution().call();
-        //const amount = document.getElementById("amount").value;
+        // Is there a way to not require that the user pay the gas fee for this?
+        // Costs $2.50 April 24 2022
+        await drt.methods.checkDistribution().send({ from: user });
         console.log("called oracle command");
     }
 
