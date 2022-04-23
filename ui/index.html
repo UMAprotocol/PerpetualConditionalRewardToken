@@ -23,7 +23,7 @@
   <h1>Issuer</h1>
   <label>Issuer address: </label> <span id="issuer"></span><br/>
   <label>Distribution Amount: </label> <input type="number" id="amount" value=100><br/>
-  <button onclick="distribute()">Distribute</button><br/>
+  <button onclick="checkOracle()">Distribute</button><br/>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js" crossorigin="anonymous"></script>
   <script>if (typeof module === "undefined") module = {};</script>
@@ -112,6 +112,11 @@
         ).send({ from: user });
         await refreshSubscription();
         await refreshBalance();
+    }
+    async function checkOracle() {
+        drt.methods.checkDistribution().call();
+        //const amount = document.getElementById("amount").value;
+        console.log("called oracle command");
     }
 
     async function distribute() {
