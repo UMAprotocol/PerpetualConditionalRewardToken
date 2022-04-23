@@ -123,8 +123,8 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
         
         address requester = address(this);
         // memory bytes ancillaryData = ""; 
-        bytes32 identifier = keccak256("YES_OR_NO_QUERY");
-       //bytes32 identifier =  stringToBytes32("YES_OR_NO_QUERY");// price identifier to identify the existing request
+        //bytes32 identifier = keccak256("YES_OR_NO_QUERY");
+       bytes32 identifier =  stringToBytes32("YES_OR_NO_QUERY");// price identifier to identify the existing request
        uint256 timestamp = block.timestamp;
        int256 proposedPrice = 1;
        oracle.proposePrice(requester, identifier, timestamp, "", proposedPrice); //→ uint256 totalBond (external) 
