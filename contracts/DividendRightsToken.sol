@@ -13,6 +13,8 @@ import {
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 
 //import { OptimisticOracle } from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
 import { OptimisticOracleInterface } from "@uma/core/contracts/oracle/interfaces/OptimisticOracleInterface.sol";
@@ -128,10 +130,17 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
         address requester = address(this);
         // memory bytes ancillaryData = ""; 
         //bytes32 identifier = keccak256("YES_OR_NO_QUERY");
-       bytes32 identifier =  stringToBytes32("YES_OR_NO_QUERY");// price identifier to identify the existing request
+      // bytes32 identifier =  stringToBytes32("YES_OR_NO_QUERY");// price identifier to identify the existing request
+       //bytes32 identifier = 0x5945535f4f525f4e4f5f5155455259;
+       //bytes32 identifier = 0x5945 0x535f 0x4f52 0x5f4e 0x4f5f 0x5155 0x4552 0x59;
+       bytes32 identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
+       //bytes32 identifier = bytes32(0x5945535f4f525f4e4f5f5155455259);
+
        uint256 timestamp = block.timestamp;
        int256 proposedPrice = 1;
-       oracle.proposePrice(requester, identifier, timestamp, "", proposedPrice); //→ uint256 totalBond (external) 
+       oracle.proposePrice(requester, identifier, timestamp, "", proposedPrice); 
+       //oracle.requestPrice(identifier, timestamp, "", IERC20(collateralCurrency), 0);
+
         return true;
     }
 
