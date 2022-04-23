@@ -124,11 +124,11 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
     /// @dev Determine if distribution should be paid out
     function checkDistribution() external returns (bool) {
         //finder = FinderInterface(_finderAddress);
-        //OptimisticOracleInterface oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
-        OptimisticOracleInterface oracle = _getOptimisticOracle();
+        OptimisticOracleInterface oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
+        //OptimisticOracleInterface oracle = _getOptimisticOracle();
         
         address requester = address(this);
-        // memory bytes ancillaryData = ""; 
+      bytes memory ancillaryData = abi.encodePacked("Will Deanna submit a hackathon entry?"); 
         //bytes32 identifier = keccak256("YES_OR_NO_QUERY");
       // bytes32 identifier =  stringToBytes32("YES_OR_NO_QUERY");// price identifier to identify the existing request
        //bytes32 identifier = 0x5945535f4f525f4e4f5f5155455259;
@@ -138,11 +138,19 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
 
        uint256 timestamp = block.timestamp;
        int256 proposedPrice = 1;
-       oracle.proposePrice(requester, identifier, timestamp, "", proposedPrice); 
-       //oracle.requestPrice(identifier, timestamp, "", IERC20(collateralCurrency), 0);
+       uint256 customLiveness_sec = 10;
+       
+       // Request price from oracle to start the process
+       oracle.requestPrice(identifier, timestamp, ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
+       // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
+       oracle.setCustomLiveness(identifier, timestamp, ancillaryData, customLiveness_sec);
+       // Propose that the task has been completed
+       oracle.proposePrice(requester, identifier, timestamp, ancillaryData, proposedPrice); 
 
         return true;
     }
+
+
 
     /// @dev Distribute `amount` of cash among all token holders
     function distribute(uint256 cashAmount) external onlyOwner {
