@@ -33,6 +33,10 @@ contract DividendRightsToken is
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
+    bytes private _ancillaryData = abi.encodePacked("Will Deanna submit a hackathon entry?"); 
+    bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
+
+
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -121,6 +125,7 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
      FinderInterface finder = FinderInterface(_finderAddress);
         return OptimisticOracleInterface(finder.getImplementationAddress(OracleInterfaces.OptimisticOracle));
     }
+
     /// @dev Determine if distribution should be paid out
     function checkDistribution() external returns (bool) {
         //finder = FinderInterface(_finderAddress);
@@ -128,24 +133,17 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
         //OptimisticOracleInterface oracle = _getOptimisticOracle();
         
         address requester = address(this);
-      bytes memory ancillaryData = abi.encodePacked("Will Deanna submit a hackathon entry?"); 
-        //bytes32 identifier = keccak256("YES_OR_NO_QUERY");
-      // bytes32 identifier =  stringToBytes32("YES_OR_NO_QUERY");// price identifier to identify the existing request
-       //bytes32 identifier = 0x5945535f4f525f4e4f5f5155455259;
-       //bytes32 identifier = 0x5945 0x535f 0x4f52 0x5f4e 0x4f5f 0x5155 0x4552 0x59;
-       bytes32 identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
-       //bytes32 identifier = bytes32(0x5945535f4f525f4e4f5f5155455259);
 
        uint256 timestamp = block.timestamp;
        int256 proposedPrice = 1;
        uint256 customLiveness_sec = 10;
        
        // Request price from oracle to start the process
-       oracle.requestPrice(identifier, timestamp, ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
+       oracle.requestPrice(_identifier, timestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
        // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
-       oracle.setCustomLiveness(identifier, timestamp, ancillaryData, customLiveness_sec);
+       oracle.setCustomLiveness(_identifier, timestamp, _ancillaryData, customLiveness_sec);
        // Propose that the task has been completed
-       oracle.proposePrice(requester, identifier, timestamp, ancillaryData, proposedPrice); 
+       oracle.proposePrice(requester, _identifier, timestamp, _ancillaryData, proposedPrice); 
 
         return true;
     }
@@ -210,6 +208,23 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
             ),
             new bytes(0) // user data
         );
+    }
+
+    /**
+     * @notice Callback for settlement.
+     * @param identifier price identifier being requested.
+     * @param timestamp timestamp of the price being requested.
+     * @param ancillaryData ancillary data of the price being requested.
+     * @param price price that was resolved by the escalation process.
+     */
+    function priceSettled(
+        bytes32 identifier,
+        uint256 timestamp,
+        bytes memory ancillaryData,
+        int256 price
+    ) external {
+       // distribute();
+       
     }
 
 }
