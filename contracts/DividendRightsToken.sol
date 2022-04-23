@@ -41,12 +41,19 @@ contract DividendRightsToken is
 
     constructor(
         string memory name,
-        string memory symbol,
+        string memory symbol)
+        /*
         ISuperToken cashToken,
         ISuperfluid host,
-        IInstantDistributionAgreementV1 ida)
-        ERC20(name, symbol)
+        IInstantDistributionAgreementV1 ida)*/
+        ERC20(name, symbol) 
     {
+        // Kovan superfluid addresses
+        // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
+        ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
+        ISuperToken cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);
+        IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x556ba0b3296027Dd7BCEb603aE53dEc3Ac283d2b);
+
         _cashToken = cashToken;
         _host = host;
         _ida = ida;
