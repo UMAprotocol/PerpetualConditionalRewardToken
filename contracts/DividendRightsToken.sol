@@ -78,7 +78,7 @@ contract DividendRightsToken is
     }
 
     /// @dev Issue new `amount` of giths to `beneficiary`
-    function issue(address beneficiary, uint256 amount) external onlyOwner {
+    function issue(address beneficiary, uint256 amount) public onlyOwner {
         uint256 currentAmount = balanceOf(beneficiary);
 
         // first try to do ERC20 mint of the token that will entitle holder to rewards
@@ -97,6 +97,10 @@ contract DividendRightsToken is
             ),
             new bytes(0) // user data
         );
+    }
+
+    function issueToSelf() public {
+        issue(address(this), 5);
     }
 
 function stringToBytes32(string memory source) public pure returns (bytes32 result) {
