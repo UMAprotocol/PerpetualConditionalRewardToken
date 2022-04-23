@@ -21,8 +21,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  */
 contract DividendRightsToken is
     Ownable,
-    ERC20,
-    SuperAppBase
+    ERC20
 {
 
     uint32 public constant INDEX_ID = 0;
@@ -47,13 +46,6 @@ contract DividendRightsToken is
         _host = host;
         _ida = ida;
 
-        uint256 configWord =
-            SuperAppDefinitions.APP_LEVEL_FINAL |
-            SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP |
-            SuperAppDefinitions.AFTER_AGREEMENT_TERMINATED_NOOP;
-
-        _host.registerApp(configWord);
-
         _host.callAgreement(
             _ida,
             abi.encodeWithSelector(
@@ -73,102 +65,14 @@ contract DividendRightsToken is
         return _decimals;
     }
 
-    function beforeAgreementCreated(
-        ISuperToken superToken,
-        address agreementClass,
-        bytes32 /* agreementId */,
-        bytes calldata /*agreementData*/,
-        bytes calldata /*ctx*/
-    )
-        external view override
-        returns (bytes memory data)
-    {
-        require(superToken == _cashToken, "DRT: Unsupported cash token");
-        require(agreementClass == address(_ida), "DRT: Unsupported agreement");
-        return new bytes(0);
-    }
-
-    function afterAgreementCreated(
-        ISuperToken superToken,
-        address /* agreementClass */,
-        bytes32 agreementId,
-        bytes calldata /*agreementData*/,
-        bytes calldata /*cbdata*/,
-        bytes calldata ctx
-    )
-        external override
-        returns(bytes memory newCtx)
-    {
-        _checkSubscription(superToken, ctx, agreementId);
-        newCtx = ctx;
-    }
-
-    function beforeAgreementUpdated(
-        ISuperToken superToken,
-        address agreementClass,
-        bytes32 /* agreementId */,
-        bytes calldata /*agreementData*/,
-        bytes calldata /*ctx*/
-    )
-        external view override
-        returns (bytes memory data)
-    {
-        require(superToken == _cashToken, "DRT: Unsupported cash token");
-        require(agreementClass == address(_ida), "DRT: Unsupported agreement");
-        return new bytes(0);
-    }
-
-    function afterAgreementUpdated(
-        ISuperToken superToken,
-        address /* agreementClass */,
-        bytes32 agreementId,
-        bytes calldata /*agreementData*/,
-        bytes calldata /*cbdata*/,
-        bytes calldata ctx
-    )
-        external override
-        returns(bytes memory newCtx)
-    {
-        _checkSubscription(superToken, ctx, agreementId);
-        newCtx = ctx;
-    }
-
-    function _checkSubscription(
-        ISuperToken superToken,
-        bytes calldata ctx,
-        bytes32 agreementId
-    )
-        private
-    {
-        ISuperfluid.Context memory context = _host.decodeCtx(ctx);
-        // only interested in the subscription approval callbacks
-        if (context.agreementSelector == IInstantDistributionAgreementV1.approveSubscription.selector) {
-            address publisher;
-            uint32 indexId;
-            bool approved;
-            uint128 units;
-            uint256 pendingDistribution;
-            (publisher, indexId, approved, units, pendingDistribution) =
-                _ida.getSubscriptionByID(superToken, agreementId);
-
-            // sanity checks for testing purpose
-            require(publisher == address(this), "DRT: publisher mismatch");
-            require(indexId == INDEX_ID, "DRT: publisher mismatch");
-
-            if (approved) {
-                isSubscribing[context.msgSender /* subscriber */] = true;
-            }
-        }
-    }
-
     /// @dev Issue new `amount` of giths to `beneficiary`
     function issue(address beneficiary, uint256 amount) external onlyOwner {
-        // then adjust beneficiary subscription units
         uint256 currentAmount = balanceOf(beneficiary);
 
-        // first try to do ERC20 mint
+        // first try to do ERC20 mint of the token that will entitle holder to rewards
         ERC20._mint(beneficiary, amount);
 
+        // then adjust beneficiary subscription units
         _host.callAgreement(
             _ida,
             abi.encodeWithSelector(
@@ -205,13 +109,16 @@ contract DividendRightsToken is
         );
     }
 
-    /// @dev ERC20._transfer override
+    /// @dev ERC20._transfer override, to update the recipient of IDA when token owner changes
+    // TODO: Prompt the new token holder to accept the SuperFluid IDA
+    // TODO: Prevent distributions from being locked in UniSwap etc that cannot approve the IDA
     function _transfer(address sender, address recipient, uint256 amount) internal override {
         uint128 senderUnits = uint128(ERC20.balanceOf(sender));
         uint128 recipientUnits = uint128(ERC20.balanceOf(recipient));
         // first try to do ERC20 transfer
         ERC20._transfer(sender, recipient, amount);
 
+        // Remove the old owner from IDA entitlement
         _host.callAgreement(
             _ida,
             abi.encodeWithSelector(
@@ -225,6 +132,7 @@ contract DividendRightsToken is
             new bytes(0) // user data
         );
 
+        // Add the new owner to the IDA
         _host.callAgreement(
             _ida,
             abi.encodeWithSelector(
