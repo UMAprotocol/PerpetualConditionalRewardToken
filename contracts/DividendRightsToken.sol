@@ -13,8 +13,11 @@ import {
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { OptimisticOracle} from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
 
+//import { OptimisticOracle } from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
+import { OptimisticOracleInterface } from "@uma/core/contracts/oracle/interfaces/OptimisticOracleInterface.sol";
+import {FinderInterface} from "@uma/core/contracts/oracle/interfaces/FinderInterface.sol";
+import {OracleInterfaces} from "@uma/core/contracts/oracle/implementation/Constants.sol";
 
 /**
  * The dividends rights token show cases two use cases
@@ -89,16 +92,36 @@ contract DividendRightsToken is
         );
     }
 
-    /// @dev Determine if distribution should be paid out
-    function checkDistribution() external public {
-       OptimisticOracleInterface oracle = _getOptimisticOracle();
-       address requester = address(this);
-       bytes ancillaryData = "encoded question";
-       bytes32 identifier = "price identifier to identify the existing request";
-       uint256 timestamp = getCurrentTime();
-       int256 proposedPrice = 1;
-       oracle.proposePrice(requester, identifier, timestamp, ancillaryData, proposedPrice); //→ uint256 totalBond (external) 
+function stringToBytes32(string memory source) public pure returns (bytes32 result) {
+    bytes memory tempEmptyStringTest = bytes(source);
+    if (tempEmptyStringTest.length == 0) {
+        return 0x0;
+    }
 
+    assembly {
+        result := mload(add(source, 32))
+    }
+}
+ function _getOptimisticOracle() internal view returns (OptimisticOracleInterface) {
+             address _finderAddress = 0xeD0169a88d267063184b0853BaAAAe66c3c154B2;
+
+     FinderInterface finder = FinderInterface(_finderAddress);
+        return OptimisticOracleInterface(finder.getImplementationAddress(OracleInterfaces.OptimisticOracle));
+    }
+    /// @dev Determine if distribution should be paid out
+    function checkDistribution() external returns (bool) {
+        //finder = FinderInterface(_finderAddress);
+        //OptimisticOracleInterface oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
+        OptimisticOracleInterface oracle = _getOptimisticOracle();
+        
+        address requester = address(this);
+        // memory bytes ancillaryData = ""; 
+        bytes32 identifier = keccak256("YES_OR_NO_QUERY");
+       //bytes32 identifier =  stringToBytes32("YES_OR_NO_QUERY");// price identifier to identify the existing request
+       uint256 timestamp = block.timestamp;
+       int256 proposedPrice = 1;
+       oracle.proposePrice(requester, identifier, timestamp, "", proposedPrice); //→ uint256 totalBond (external) 
+        return true;
     }
 
     /// @dev Distribute `amount` of cash among all token holders
