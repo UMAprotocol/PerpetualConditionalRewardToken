@@ -13,11 +13,8 @@ import {
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-// import { OptimisticOracle} from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
-import "@uma/core/contracts/common/implementation/Testable.sol";
+import { OptimisticOracle} from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
 
-
-// import { OptimisticOracle } from "@/OptimisticOracleService"
 
 /**
  * The dividends rights token show cases two use cases
