@@ -16,7 +16,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
-//import { OptimisticOracle } from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
+import { OptimisticRequester } from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
 import { OptimisticOracleInterface } from "@uma/core/contracts/oracle/interfaces/OptimisticOracleInterface.sol";
 import {FinderInterface} from "@uma/core/contracts/oracle/interfaces/FinderInterface.sol";
 import {OracleInterfaces} from "@uma/core/contracts/oracle/implementation/Constants.sol";
@@ -28,14 +28,15 @@ import {OracleInterfaces} from "@uma/core/contracts/oracle/implementation/Consta
  */
 contract DividendRightsToken is
     Ownable,
-    ERC20
+    ERC20,
+    OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
     bytes private _ancillaryData = abi.encodePacked("Will Deanna submit a hackathon entry?"); 
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
-
+    uint256 private _payoutAmountOnOracleConfirmation = 10;
 
 
     ISuperToken private _cashToken;
@@ -155,7 +156,7 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
 
 
     /// @dev Distribute `amount` of cash among all token holders
-    function distribute(uint256 cashAmount) external onlyOwner {
+    function distribute(uint256 cashAmount) public onlyOwner {
         (uint256 actualCashAmount,) = _ida.calculateDistribution(
             _cashToken,
             address(this), INDEX_ID,
@@ -215,20 +216,32 @@ function stringToBytes32(string memory source) public pure returns (bytes32 resu
     }
 
     /**
-     * @notice Callback for settlement.
-     * @param identifier price identifier being requested.
-     * @param timestamp timestamp of the price being requested.
-     * @param ancillaryData ancillary data of the price being requested.
-     * @param price price that was resolved by the escalation process.
+     *  Callback for settlement.
+     *  identifier price identifier being requested.
+     *  timestamp timestamp of the price being requested.
+     *  ancillaryData ancillary data of the price being requested.
+     *  price price that was resolved by the escalation process.
      */
-    function priceSettled(
-        bytes32 identifier,
-        uint256 timestamp,
-        bytes memory ancillaryData,
-        int256 price
-    ) external {
-       // distribute();
-       
+    function priceSettled (
+        bytes32 /*identifier*/,
+        uint256 /*timestamp*/,
+        bytes memory /*ancillaryData*/,
+        int256 /*price*/
+    ) external override onlyOwner {
+       distribute(uint256(_payoutAmountOnOracleConfirmation));
     }
+
+     function priceProposed(
+        bytes32 /*_identifier*/,
+        uint256 /*_timestamp*/,
+        bytes memory /*_ancillaryData*/
+    ) external override {}
+
+    function priceDisputed(
+        bytes32 /*_identifier*/,
+        uint256 /*_timestamp*/,
+        bytes memory /*_ancillaryData*/,
+        uint256 /*_refund*/
+    ) external override {}
 
 }
