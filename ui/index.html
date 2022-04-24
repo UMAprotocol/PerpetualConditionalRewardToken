@@ -11,21 +11,24 @@
 </head>
 
 <body>
-  <h3>(Please Use Goerli!)</h3>
-  <h1>Subscriber</h1>
-  <label>Balance: </label> <span id="balance">0</span><br/>
-  <label>Units: </label> <span id="units">0</span><br/>
-  <label>Approved: </label> <span id="approved">no</span><br/>
-  <label>Pending Distribution: </label> <span id="pendingDistribution">0</span><br/>
-  <button onclick="approve()">Approve reward token for squad goals</button><br/>
-  <button onclick="checkOracle()">Claim squal goals on behalf of squad</button><br/>
-  <button onclick=" window.open('https://optimistic-oracle-dapp-git-feature-sc-5344make-kovan-4179fe-uma.vercel.app/','_blank')">Check task verification status</button>
+  <h3>(SquadGoals using PerpetualConditionalDistribution token, on Kovan testnet)</h3>
+
+  <h1>Squad Goal: new OpenAMS release every month</h1>
+ <!-- <label>Issuer address: </label> <span id="issuer"></span><br/> -->
+  <label>Amount: </label> <input type="number" id="amount" value=100><br/>
+  <button onclick="distribute()">Distribute manual bonus</button><br/>
+  <br>
 
   <hr/>
-  <h1>Issuer</h1>
-  <label>Issuer address: </label> <span id="issuer"></span><br/>
-  <label>Distribution Amount: </label> <input type="number" id="amount" value=100><br/>
-  <button onclick="distribute()">Distribute</button><br/>
+  <h1>Squad member: Alberto</h1>
+  <label>Units: </label> <span id="units">0</span><br/>
+  <label>Pending Distribution: </label> <span id="pendingDistribution">0</span><br/>
+  <label>Approved: </label> <span id="approved">no</span><br/>
+  <button onclick="approve()">Approve reward token for squad goals</button><br/>
+  <br>
+  <h4>Goal complete?</h4>
+  <button onclick="checkOracle()">Claim squal goals on behalf of squad</button><br/>
+  <button onclick=" window.open('https://optimistic-oracle-dapp-git-feature-sc-5344make-kovan-4179fe-uma.vercel.app/','_blank')">Check task verification status</button>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js" crossorigin="anonymous"></script>
   <script>if (typeof module === "undefined") module = {};</script>
