@@ -75,6 +75,10 @@ contract DividendRightsToken is
             new bytes(0) // user data
         );
 
+        // Hard-code some initial recipients of IDA
+        issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
+        issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
+  
         transferOwnership(msg.sender);
         _decimals = 0;
     }
