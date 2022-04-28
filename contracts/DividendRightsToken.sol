@@ -48,6 +48,9 @@ contract DividendRightsToken is
     // use callbacks to track approved subscriptions
     mapping (address => bool) public isSubscribing;
 
+    event OracleVerificationResult(bool);
+
+
     constructor(
         string memory name,
         string memory symbol)
@@ -121,7 +124,7 @@ contract DividendRightsToken is
     }
 
     /// @dev Request verification from the oracle that distribution should be paid out
-    function requestVerification() external returns (bool) {
+    function requestOracleVerification() external returns (bool) {
         address requester = address(this);
 
         _timestamp = block.timestamp;
@@ -139,10 +142,23 @@ contract DividendRightsToken is
     }
 
     /// @dev Retrieve the verification result, if the verification process has finished
-    function getVerificationResult() external returns (int256) {
+    function getOracleVerificationResult() public returns (bool) {
+        bool verified = false;
         int256 resolvedPrice = _oracle.settleAndGetPrice(_identifier, _timestamp, _ancillaryData);
-        emit PriceSettledEvent(resolvedPrice);
-        return resolvedPrice;
+        emit OracleVerificationResult(verified);
+        if (1 ether == resolvedPrice) {
+            verified = true;
+        } else if (0 == resolvedPrice) {
+            verified = false;
+        }
+        return verified;  // TODO: handle 'uncertain'/'too early' responses
+    }
+
+    /// @dev Distribute predefined amount among all token holders IFF verification succeeded
+    function distributeIfOracleVerificationSucceeded() public onlyOwner {
+        if (getOracleVerificationResult()) {
+            distribute(_payoutAmountOnOracleConfirmation);
+        }
     }
 
     /// @dev Distribute `amount` of cash among all token holders
