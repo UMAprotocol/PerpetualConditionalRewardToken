@@ -48,6 +48,8 @@ contract DividendRightsToken is
     // use callbacks to track approved subscriptions
     mapping (address => bool) public isSubscribing;
 
+    event PriceProposedEvent();
+    event PriceSettledEvent(int256);
     event OracleVerificationResult(bool);
 
 
@@ -228,20 +230,24 @@ contract DividendRightsToken is
      *  ancillaryData ancillary data of the price being requested.
      *  price price that was resolved by the escalation process.
      */
+     // TODO: allow distribute() to be called from the oracle without running out of gas
     function priceSettled (
         bytes32 /*identifier*/,
         uint256 /*timestamp*/,
         bytes memory /*ancillaryData*/,
-        int256 /*price*/
-    ) external override onlyOwner {
-       distribute(uint256(_payoutAmountOnOracleConfirmation));
+        int256 resolvedPrice
+    ) external override {
+        emit PriceSettledEvent(resolvedPrice);
+        //distribute(uint256(_payoutAmountOnOracleConfirmation));
     }
 
      function priceProposed(
         bytes32 /*_identifier*/,
         uint256 /*_timestamp*/,
         bytes memory /*_ancillaryData*/
-    ) external override {}
+    ) external override {
+        emit PriceProposedEvent();
+    }
 
     function priceDisputed(
         bytes32 /*_identifier*/,
