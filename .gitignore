@@ -5,6 +5,7 @@
 /coverage
 /.env
 /data
+/contracts/artifacts
 *.ignore.*
 .DS_Store
 

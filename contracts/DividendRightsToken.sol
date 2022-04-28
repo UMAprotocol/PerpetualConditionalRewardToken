@@ -34,10 +34,12 @@ contract DividendRightsToken is
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
-    bytes private _ancillaryData = abi.encodePacked("Will Deanna submit a hackathon entry?"); 
+    bytes private _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
+    uint256 private _timestamp;
     uint256 private _payoutAmountOnOracleConfirmation = 10;
 
+    OptimisticOracleInterface _oracle;
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -55,6 +57,8 @@ contract DividendRightsToken is
         IInstantDistributionAgreementV1 ida)*/
         ERC20(name, symbol) 
     {
+        _oracle = _getOptimisticOracle();
+
         // Kovan superfluid addresses
         // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
         ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
@@ -88,7 +92,7 @@ contract DividendRightsToken is
         return _decimals;
     }
 
-    /// @dev Issue new `amount` of giths to `beneficiary`
+    /// @dev Issue new `amount` of gifts to `beneficiary`
     function issue(address beneficiary, uint256 amount) public onlyOwner {
         uint256 currentAmount = balanceOf(beneficiary);
 
@@ -110,50 +114,36 @@ contract DividendRightsToken is
         );
     }
 
-    function issueToSelf() public {
-        issue(address(this), 5);
+    function _getOptimisticOracle() internal pure returns (OptimisticOracleInterface) {
+        // Kovan UMA Optimistic Oracle address
+        // From https://docs.umaproject.org/dev-ref/addresses
+        return OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
     }
 
-function stringToBytes32(string memory source) public pure returns (bytes32 result) {
-    bytes memory tempEmptyStringTest = bytes(source);
-    if (tempEmptyStringTest.length == 0) {
-        return 0x0;
-    }
-
-    assembly {
-        result := mload(add(source, 32))
-    }
-}
- function _getOptimisticOracle() internal view returns (OptimisticOracleInterface) {
-             address _finderAddress = 0xeD0169a88d267063184b0853BaAAAe66c3c154B2;
-
-     FinderInterface finder = FinderInterface(_finderAddress);
-        return OptimisticOracleInterface(finder.getImplementationAddress(OracleInterfaces.OptimisticOracle));
-    }
-
-    /// @dev Determine if distribution should be paid out
-    function checkDistribution() external returns (bool) {
-        //finder = FinderInterface(_finderAddress);
-        OptimisticOracleInterface oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
-        //OptimisticOracleInterface oracle = _getOptimisticOracle();
-        
+    /// @dev Request verification from the oracle that distribution should be paid out
+    function requestVerification() external returns (bool) {
         address requester = address(this);
 
-       uint256 timestamp = block.timestamp;
-       int256 proposedPrice = 1;
-       uint256 customLiveness_sec = 10;
-       
-       // Request price from oracle to start the process
-       oracle.requestPrice(_identifier, timestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
-       // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
-       oracle.setCustomLiveness(_identifier, timestamp, _ancillaryData, customLiveness_sec);
-       // Propose that the task has been completed
-       oracle.proposePrice(requester, _identifier, timestamp, _ancillaryData, proposedPrice); 
+        _timestamp = block.timestamp;
+        int256 proposedPrice = 1 ether;
+        uint256 customLiveness_sec = 30;
+
+        // Request price from oracle to start the process
+        _oracle.requestPrice(_identifier, _timestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
+        // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
+        _oracle.setCustomLiveness(_identifier, _timestamp, _ancillaryData, customLiveness_sec);
+        // Propose that the task has been completed
+        _oracle.proposePrice(requester, _identifier, _timestamp, _ancillaryData, proposedPrice); 
 
         return true;
     }
 
-
+    /// @dev Retrieve the verification result, if the verification process has finished
+    function getVerificationResult() external returns (int256) {
+        int256 resolvedPrice = _oracle.settleAndGetPrice(_identifier, _timestamp, _ancillaryData);
+        emit PriceSettledEvent(resolvedPrice);
+        return resolvedPrice;
+    }
 
     /// @dev Distribute `amount` of cash among all token holders
     function distribute(uint256 cashAmount) public onlyOwner {
