@@ -7,13 +7,18 @@ const SuperfluidSDK = require("@superfluid-finance/js-sdk");
 const PerpetualConditionalReward = artifacts.require("PerpetualConditionalReward")
 
 contract("PerpetualConditionalReward", accounts => {
+    const rallyInstance = await PerpetualConditionalReward.new();
+    console.log(rallyInstance)
     const errorHandler = err => {
         if (err) throw err;
     };
 
   it("should assert true", async function () {
+    const oracleResult = await rallyInstance.askOracle.call();//accounts[0]);
+    });
+  it("should assert true", async function () {
     const rallyInstance = await PerpetualConditionalReward.new();
     console.log(rallyInstance)
-    const oracleResult = await rallyInstance.askOracle.call();//accounts[0]);
+    const oracleResult = await rallyInstance.askOracle.send();//accounts[0]);
     });
 });

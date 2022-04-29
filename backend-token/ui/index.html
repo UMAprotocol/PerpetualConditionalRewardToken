@@ -14,7 +14,7 @@
   <h3>(SquadGoals using PerpetualConditionalDistribution token, on Kovan testnet)</h3>
 
   <h1>Squad Goal: new OpenAMS release every month</h1>
- <!-- <label>Issuer address: </label> <span id="issuer"></span><br/> -->
+  <label>Issuer address: </label> <span id="issuer"></span><br/> 
   <label>Amount: </label> <input type="number" id="amount" value=100><br/>
   <button onclick="distribute()">Distribute manual bonus</button><br/>
   <br>
@@ -37,10 +37,11 @@
   <script src="DividendRightsToken.abi.js"></script>
   <script>
     let web3, daix, user, host, ida, drt;
+    let liveness_sec = 30;
 
     const DEPLOYED_DIVIDEND_RIGHTS_TOKENS = {
         5: "0x39aA80Fc05eD0b3549be279589Fc67f06b7e35EE", // goerli
-        42: "0xdF357A63Ea177222ab0f278201F44225272d1444", // kovan
+        42: "0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47", // kovan
     }
     async function main() {
         await ethereum.enable();
@@ -100,7 +101,7 @@
             "0x"
         ).send({ from: user });
         await refreshSubscription();
-        await refreshBalance();
+        //await refreshBalance();
     }
 
     async function claim() {
@@ -118,11 +119,14 @@
         await refreshSubscription();
         await refreshBalance();
     }
+    async function distributeIfOracleResultVerified() {
+        await drt.methods.distributeIfOracleVerificationSucceeded().send({ from: user });
+        console.log("settled oracle price request");
+    }
     async function checkOracle() {
-        // Is there a way to not require that the user pay the gas fee for this?
-        // Costs $2.50 April 24 2022
-        await drt.methods.checkDistribution().send({ from: user });
-        console.log("called oracle command");
+        await drt.methods.getOracleVerificationResult().send({ from: user });
+        console.log("successfully requested oracle price");
+          setTimeout("distributeIfOracleResultVerified()", liveness_sec * 1000);
     }
 
     async function distribute() {
@@ -134,8 +138,8 @@
             await daix.methods.approve(drt._address, "1"+"0".repeat(42)).send({ from: user });
         }
         await drt.methods.distribute(web3.utils.toWei(amount.toString(), "ether")).send({ from: user });
-        await refreshSubscription();
-        await refreshBalance();
+        //await refreshSubscription();
+        //await refreshBalance();
     }
 
     async function refreshBalance() {

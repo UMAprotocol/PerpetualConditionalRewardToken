@@ -2,7 +2,11 @@ const { web3tx } = require("@decentral.ee/web3-helpers");
 const { setWeb3Provider } = require("@decentral.ee/web3-helpers/src/config");
 const SuperfluidSDK = require("@superfluid-finance/js-sdk");
 const DividendRightsToken = artifacts.require("DividendRightsToken");
+const PerpetualConditionalReward = artifacts.require("PerpetualConditionalReward");
 
+// module.exports = function(deployer) {
+//     deployer.deploy(PerpetualConditionalReward);
+// }
 module.exports = async function(callback) {
     try {
         const version = process.env.RELEASE_VERSION || "test";
@@ -27,6 +31,13 @@ module.exports = async function(callback) {
             sf.tokens.fDAIx.address,
             sf.host.address,
             sf.agreements.ida.address
+        );
+        console.log("App deployed at", app.address);
+
+        app = await web3tx(
+            PerpetualConditionalReward.new,
+            "Deploy PerpetualConditionalReward contract"
+        )(
         );
         console.log("App deployed at", app.address);
         callback();

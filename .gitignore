@@ -1,14 +1,12 @@
-/data
-/node_modules
-/build
-/coverage.json
-/coverage
-/.env
-/data
-/contracts/artifacts
+/*/data
+/*/node_modules
+/*/build
+/*/coverage.json
+/*/coverage
+/*/contracts/artifacts
 *.ignore.*
 .DS_Store
 
 *.env
 
-.vscode/
+*.vscode/
