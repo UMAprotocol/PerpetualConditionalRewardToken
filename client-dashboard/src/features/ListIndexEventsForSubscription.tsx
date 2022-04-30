@@ -24,6 +24,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
     const [page, setPage] = useState<number>(1);
     const [queryChainId, setQueryChainId] = useState<number>(chainId);
+    const [pageSize, setPageSize] = useState<number>(10);
     const [accountAddress, setAccountAddress] = useState<string>("0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47");
 
     useEffect(() => {
@@ -41,7 +42,8 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
             chainId: queryChainId,
             filter: {
                 addresses_contains: ["0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()],
-                name: "Sent",
+                name: "Sent", // triggered on ida.distribute, and is not called in the contract for any other reason
+                blockNumber_gte: "31298984", // only get events since subscription was created
             },
         },
         {
@@ -62,7 +64,9 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                     <Table aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>Event</TableCell>
+                                <TableCell>Distribution</TableCell>
+                                <TableCell>Transaction hash</TableCell>
+                                <TableCell>Amount</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -70,10 +74,16 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                                 (event: AllEvents, index: number) => (
                                     <TableRow key={index}>
                                         <TableCell>
-                                            <pre>
-                                                {JSON.stringify(event)}
-                                            </pre>
+                                            {event.timestamp}
                                         </TableCell>
+                                        <TableCell>
+                                            {event.transactionHash}
+                                        </TableCell>
+                                        {
+                                          // Can't access `amount` here because AllEvents is being used. 
+                                          // Might need to use mapGetAllEventsQueryEvents to cast it?
+                                        }
+                                        <TableCell>?</TableCell>
                                     </TableRow>
                                 )
                             )}
