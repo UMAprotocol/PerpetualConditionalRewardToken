@@ -7,7 +7,7 @@ import React, {
 import { SignerContext } from "../../SignerContext";
 import { sfSubgraph } from "../../redux/store";
 import { SentEvent } from "@superfluid-finance/sdk-core";
-import { DateTime } from "luxon";
+import { formatTimestamp } from "./../../utils.js"
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Card from "react-bootstrap/Card";
@@ -40,10 +40,6 @@ export const IndexSubscription: FC = (): ReactElement => {
             }
         }
     }
-    let timestamp = subscriptionData?.updatedAtTimestamp
-    var date = DateTime.fromSeconds(Number(timestamp)).toFormat("LLL. dd yyyy");
-    var time = DateTime.fromSeconds(Number(timestamp)).toFormat("ttt");
-    
 
     // Get payments more recent than when the total was last updated (to add)
     const paymentsSinceLastUpdatedBlockResponse = sfSubgraph.useEventsQuery(
@@ -92,7 +88,7 @@ export const IndexSubscription: FC = (): ReactElement => {
                 <Card className="recentPayout">
                    <div >
                         <h5>Latest payment</h5>
-                        <h6>{date} {time}?</h6>
+                        <h6>{formatTimestamp(subscriptionData?.updatedAtTimestamp)}?</h6>
                    </div>
                 </Card>
                  

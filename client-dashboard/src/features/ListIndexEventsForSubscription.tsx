@@ -20,6 +20,7 @@ import { SignerContext } from "../SignerContext";
 import { Error } from "../Error";
 import { sfSubgraph } from "../redux/store";
 import { ethers } from "ethers";
+import { formatTimestamp } from "./../utils.js"
 
 export const ListIndexEventsForSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
@@ -97,7 +98,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                                 (event: SentEvent, index: number) => (
                                     <TableRow key={index}>
                                         <TableCell>
-                                            {event.timestamp}
+                                            {formatTimestamp(event.timestamp)}
                                         </TableCell>
                                         <TableCell>
                                             {event.amount}
