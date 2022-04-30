@@ -3,9 +3,8 @@ import React, {
     ReactElement,
     useContext,
     useState,
-    useEffect,
 } from "react";
-import { AllEvents, SentEvent } from "@superfluid-finance/sdk-core";
+import { SentEvent } from "@superfluid-finance/sdk-core";
 import { Loader } from "../Loader";
 import {
     Pagination,
@@ -19,14 +18,13 @@ import {
 import { SignerContext } from "../SignerContext";
 import { Error } from "../Error";
 import { sfSubgraph } from "../redux/store";
-import { ethers } from "ethers";
 import { formatTimestamp } from "./../utils.js"
 
 export const ListIndexEventsForSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
     const [page, setPage] = useState<number>(1);
     const [queryChainId, setQueryChainId] = useState<number>(chainId);
-    const [pageSize, setPageSize] = useState<number>(10);
+    const [pageSize, setPageSize] = useState<number>(5);
 
     const queryResult = sfSubgraph.useIndexSubscriptionsQuery({
         chainId: queryChainId,
@@ -67,6 +65,10 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                 // Only get events since subscription was created
                 blockNumber_gte: subscriptionData?.createdAtBlockNumber.toString() || "0",
             },
+            pagination: {
+                skip: (page - 1) * pageSize,
+                take: pageSize,
+            }
         },
         {
             pollingInterval: 7500,
