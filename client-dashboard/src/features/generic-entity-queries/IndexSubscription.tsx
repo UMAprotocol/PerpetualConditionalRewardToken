@@ -55,8 +55,12 @@ export const IndexSubscription: FC = (): ReactElement => {
     let totalDistributionsReceived_ether = ethers.utils.formatEther(totalDistributionsReceived.toString());
     totalDistributionsReceived_ether = (+totalDistributionsReceived_ether).toFixed(4)
 
+    // Find timestamp of most recent distribution since the subscription was added
     const latestPayment = mostRecentDistributionSince(subscriptionData?.createdAtBlockNumber);
     let latestPaymentTimestamp = formatTimestamp(latestPayment?.timestamp) || "None yet"
+
+    const paymentsSinceSubscriptionCreated = allDistributionDataSince(subscriptionData?.createdAtBlockNumber)
+    let distributionCount = paymentsSinceSubscriptionCreated?.length
 
     return (
         <>
@@ -95,7 +99,7 @@ export const IndexSubscription: FC = (): ReactElement => {
 
                     <br></br>
                     <h5><strong>Successful epochs</strong></h5>
-                    <h6>5?</h6>
+                    <h6>{distributionCount}</h6>
                 </Card>
             </Col>
 
