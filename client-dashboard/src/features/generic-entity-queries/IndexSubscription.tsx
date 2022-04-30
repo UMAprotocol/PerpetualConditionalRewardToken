@@ -1,74 +1,42 @@
 import React, {
     FC,
     ReactElement,
-    SyntheticEvent,
     useContext,
-    useEffect,
     useState,
 } from "react";
-import { FormGroup, TextField, Typography } from "@mui/material";
 import { SignerContext } from "../../SignerContext";
 import { sfSubgraph } from "../../redux/store";
-import { GridSortModel } from "@mui/x-data-grid";
-import { GenericDataGrid } from "./GenericDataGrid";
-import { IndexSubscription_OrderBy } from "@superfluid-finance/sdk-core";
+import { SentEvent } from "@superfluid-finance/sdk-core";
 import { DateTime } from "luxon";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import "./IndexSubscription.css"
-
+import { ethers } from "ethers";
 
 export const IndexSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
-    const [page, setPage] = useState<number>(1);
-    const [pageSize, setPageSize] = useState<number>(10);
     const [queryChainId, setQueryChainId] = useState<number>(chainId);
-
-    useEffect(() => {
-        setPage(1);
-    }, [queryChainId]);
-
-    const [sortModel, setSortModel] = React.useState<GridSortModel>([]);
-
-    const order = !!sortModel[0]
-        ? {
-              orderBy: sortModel[0].field as IndexSubscription_OrderBy,
-              orderDirection: sortModel[0].sort!,
-          }
-        : undefined;
 
     const queryResult = sfSubgraph.useIndexSubscriptionsQuery({
         chainId: queryChainId,
         filter: {
             subscriber: "0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B",
         },
-        // pagination: {}
-            // skip: (page - 1) * pageSize,
-            // take: pageSize,
-        // },
-        order,
     });
     const data = queryResult.data
-    console.log(data)
     var subscriptionData;
     if (data) {
         const ddata = data.data
         if (ddata) {
-            console.log(ddata.length)
-            for (var i = 0; i < ddata.length; i++)
-            { 
+            for (var i = 0; i < ddata.length; i++) {
                 subscriptionData = ddata.at(i);
                 if (!subscriptionData) continue;
-            if (subscriptionData.publisher == "0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()) {
-                console.log("Found it.")
-                break;
-
-            }
-            else{
-                console.log("Nope: " + subscriptionData.publisher)
-            }
+                if (subscriptionData.publisher == "0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()) {
+                    console.log(subscriptionData);
+                    break;
+                }
             }
         }
     }
@@ -76,6 +44,36 @@ export const IndexSubscription: FC = (): ReactElement => {
     var date = DateTime.fromSeconds(Number(timestamp)).toFormat("LLL. dd yyyy");
     var time = DateTime.fromSeconds(Number(timestamp)).toFormat("ttt");
     
+
+    // Get payments more recent than when the total was last updated (to add)
+    const paymentsSinceLastUpdatedBlockResponse = sfSubgraph.useEventsQuery(
+        {
+            chainId: queryChainId,
+            filter: {
+                addresses_contains: ["0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()],
+                // Sent is triggered on ida.distribute, and is not called in the contract for any other reason.
+                name: "Sent",
+                // Only get events since subscription total was last updated
+                blockNumber_gte: subscriptionData?.updatedAtBlockNumber.toString() || "0",
+            },
+        },
+        {
+            pollingInterval: 7500,
+        }
+    );
+    let paymentsSinceLastUpdatedBlockData = paymentsSinceLastUpdatedBlockResponse.data?.data || []
+    // Sum over recent ones to get the updated total, assuming no approval/units
+    // changed since the value from updatedAtTimestamp
+    var totalDistributionsReceived = parseInt(subscriptionData?.totalAmountReceivedUntilUpdatedAt || "0");
+    for (var i = 0; i < paymentsSinceLastUpdatedBlockData.length; i++) {
+        let paymentEvent = paymentsSinceLastUpdatedBlockData.at(i) as SentEvent
+        totalDistributionsReceived += parseInt(paymentEvent.amount) * parseInt(subscriptionData?.units || "0");
+        totalDistributionsReceived /= 30  // TODO: get total number of units for the IDA
+    }
+
+    let totalDistributionsReceived_ether = ethers.utils.formatEther(totalDistributionsReceived.toString());
+    totalDistributionsReceived_ether = (+totalDistributionsReceived_ether).toFixed(4)
+
 
     return (
         <>
@@ -110,8 +108,9 @@ export const IndexSubscription: FC = (): ReactElement => {
             <Col>
                 <Card className="balance" >
                     <h2><strong>Total Rewards Received</strong></h2>
-                    <h3>{subscriptionData?.totalAmountReceivedUntilUpdatedAt} DAIx</h3>
-        
+                    <h3>{totalDistributionsReceived_ether} DAIx</h3>
+
+                    <br></br>
                     <h5><strong>Successful epochs</strong></h5>
                     <h6>5?</h6>
                 </Card>
