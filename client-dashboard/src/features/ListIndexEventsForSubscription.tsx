@@ -41,7 +41,6 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                 subscriptionData = ddata.at(i);
                 if (!subscriptionData) continue;
                 if (subscriptionData.publisher == "0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()) {
-                    console.log(subscriptionData);
                     break;
                 }
             }
@@ -78,8 +77,6 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
         }
     );
 
-    console.log(pagedEvents);
-    
     let pagedSentEvents = pagedEvents?.data as SentEvent[]
     
     return (
@@ -109,7 +106,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                                             {event.amount}
                                         </TableCell>
                                         <TableCell>
-                                            {event.transactionHash}
+                                            {event.transactionHash.substring(0, 15) + "..."}
                                         </TableCell>
                                     </TableRow>
                                 )

@@ -26,9 +26,10 @@ export const allDistributionDataSince: Function = (blockNumber: number | undefin
                 blockNumber_gte: blockNumber?.toString() || "0",
             },
         },
+        {
+            pollingInterval: 7500,
+        },
     );
-    console.log("since time")
-    console.log(singlePageEvents)
     return singlePageEvents?.data as SentEvent[];
 }
 
@@ -56,6 +57,9 @@ export const mostRecentDistributionSince: Function = (blockNumber: number | unde
             //     orderBy: "timestamp" as Event_OrderBy,
             //     orderDirection: "desc" as OrderDirection
             // },
+        },
+        {
+            pollingInterval: 7500,
         },
     );
     let maxBlockNumber = 0;

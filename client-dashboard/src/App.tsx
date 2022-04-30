@@ -34,10 +34,10 @@ function App() {
     };
 
     return (
-        <Container maxWidth={false}>
+        <Container maxWidth="md">
             <Box sx={{ my: 4 }}>
                 <Typography variant="h2" component="h2" gutterBottom>
-                    Perpetual conditional rewards: recipient dashboard
+                    PCR token rewards
                 </Typography>
                 {!superfluidSdk ? (
                     <InitializeSuperfluidSdk
@@ -55,8 +55,11 @@ function App() {
                                 is [{signerAddress}].</em>
                             </Typography>
                         </Box>
-                                <IndexSubscription />
-                                <ListIndexEventsForSubscription />
+                        <IndexSubscription />
+                        <br></br>
+                        <SdkListItem title="Successful Distributions">
+                            <ListIndexEventsForSubscription />
+                        </SdkListItem>
                     </SignerContext.Provider>
                 )}
             </Box>
