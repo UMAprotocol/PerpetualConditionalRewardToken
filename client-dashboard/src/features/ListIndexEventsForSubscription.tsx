@@ -5,7 +5,7 @@ import React, {
     useState,
     useEffect,
 } from "react";
-import { AllEvents } from "@superfluid-finance/sdk-core";
+import { AllEvents, SentEvent } from "@superfluid-finance/sdk-core";
 import { Loader } from "../Loader";
 import {
     Pagination,
@@ -49,6 +49,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
         }
     }
 
+    // TODO: sort newest to oldest
     const {
         data: pagedEvents,
         isFetching,
@@ -73,6 +74,8 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
 
     console.log(pagedEvents);
     
+    let pagedSentEvents = pagedEvents?.data as SentEvent[]
+    
     return (
         <>
             {isLoading ? (
@@ -85,25 +88,23 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Distribution</TableCell>
-                                <TableCell>Transaction hash</TableCell>
                                 <TableCell>Total amount to all recipients</TableCell>
+                                <TableCell>Transaction hash</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {pagedEvents!.data.map(
-                                (event: AllEvents, index: number) => (
+                            {pagedSentEvents.map(
+                                (event: SentEvent, index: number) => (
                                     <TableRow key={index}>
                                         <TableCell>
                                             {event.timestamp}
                                         </TableCell>
                                         <TableCell>
+                                            {event.amount}
+                                        </TableCell>
+                                        <TableCell>
                                             {event.transactionHash}
                                         </TableCell>
-                                        {
-                                          // Can't access `amount` here because AllEvents is being used. 
-                                          // Might need to use mapGetAllEventsQueryEvents to cast it?
-                                        }
-                                        <TableCell>?</TableCell>
                                     </TableRow>
                                 )
                             )}
