@@ -14,6 +14,7 @@ import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import "./IndexSubscription.css"
 import { ethers } from "ethers";
+import { allDistributionDataSince, mostRecentDistributionSince } from "./IndexSubscriptionData";
 
 export const IndexSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
@@ -42,34 +43,20 @@ export const IndexSubscription: FC = (): ReactElement => {
     }
 
     // Get payments more recent than when the total was last updated (to add)
-    const paymentsSinceLastUpdatedBlockResponse = sfSubgraph.useEventsQuery(
-        {
-            chainId: queryChainId,
-            filter: {
-                addresses_contains: ["0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()],
-                // Sent is triggered on ida.distribute, and is not called in the contract for any other reason.
-                name: "Sent",
-                // Only get events since subscription total was last updated
-                blockNumber_gte: subscriptionData?.updatedAtBlockNumber.toString() || "0",
-            },
-        },
-        {
-            pollingInterval: 7500,
-        }
-    );
-    let paymentsSinceLastUpdatedBlockData = paymentsSinceLastUpdatedBlockResponse.data?.data || []
+    const paymentsSinceLastUpdatedBlockData = allDistributionDataSince(subscriptionData?.updatedAtBlockNumber)
     // Sum over recent ones to get the updated total, assuming no approval/units
     // changed since the value from updatedAtTimestamp
     var totalDistributionsReceived = parseInt(subscriptionData?.totalAmountReceivedUntilUpdatedAt || "0");
-    for (var i = 0; i < paymentsSinceLastUpdatedBlockData.length; i++) {
+    for (var i = 0; i < paymentsSinceLastUpdatedBlockData?.length; i++) {
         let paymentEvent = paymentsSinceLastUpdatedBlockData.at(i) as SentEvent
         totalDistributionsReceived += parseInt(paymentEvent.amount) * parseInt(subscriptionData?.units || "0");
         totalDistributionsReceived /= 30  // TODO: get total number of units for the IDA
     }
-
     let totalDistributionsReceived_ether = ethers.utils.formatEther(totalDistributionsReceived.toString());
     totalDistributionsReceived_ether = (+totalDistributionsReceived_ether).toFixed(4)
 
+    const latestPayment = mostRecentDistributionSince(subscriptionData?.createdAtBlockNumber);
+    let latestPaymentTimestamp = formatTimestamp(latestPayment?.timestamp) || "None yet"
 
     return (
         <>
@@ -88,7 +75,7 @@ export const IndexSubscription: FC = (): ReactElement => {
                 <Card className="recentPayout">
                    <div >
                         <h5>Latest payment</h5>
-                        <h6>{formatTimestamp(subscriptionData?.updatedAtTimestamp)}?</h6>
+                        <h6>{latestPaymentTimestamp}</h6>
                    </div>
                 </Card>
                  
