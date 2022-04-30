@@ -4,7 +4,7 @@ import React, {
     useContext,
     useState,
 } from "react";
-import { SentEvent } from "@superfluid-finance/sdk-core";
+import { Event_OrderBy, OrderDirection, SentEvent } from "@superfluid-finance/sdk-core";
 import { Loader } from "../Loader";
 import {
     Pagination,
@@ -48,7 +48,6 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
         }
     }
 
-    // TODO: sort newest to oldest
     const {
         data: pagedEvents,
         isFetching,
@@ -68,7 +67,11 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
             pagination: {
                 skip: (page - 1) * pageSize,
                 take: pageSize,
-            }
+            },
+            order: {
+                orderBy: "timestamp" as Event_OrderBy,
+                orderDirection: "desc" as OrderDirection
+            },
         },
         {
             pollingInterval: 7500,
