@@ -12,6 +12,7 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { IndexSubscription } from "./features/generic-entity-queries/IndexSubscription";
+import { ListIndexEventsForSubscription } from "./features/ListIndexEventsForSubscription";
 
 function App() {
     const [superfluidSdk, setSuperfluidSdk] = useState<Framework | undefined>();
@@ -55,6 +56,7 @@ function App() {
                             </Typography>
                         </Box>
                                 <IndexSubscription />
+                                <ListIndexEventsForSubscription />
                     </SignerContext.Provider>
                 )}
             </Box>
