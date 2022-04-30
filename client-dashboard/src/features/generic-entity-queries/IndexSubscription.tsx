@@ -13,6 +13,12 @@ import { GridSortModel } from "@mui/x-data-grid";
 import { GenericDataGrid } from "./GenericDataGrid";
 import { IndexSubscription_OrderBy } from "@superfluid-finance/sdk-core";
 import { DateTime } from "luxon";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
+import Card from "react-bootstrap/Card";
+import Container from "react-bootstrap/Container";
+import "./IndexSubscription.css"
+
 
 export const IndexSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
@@ -73,43 +79,48 @@ export const IndexSubscription: FC = (): ReactElement => {
 
     return (
         <>
-    <Typography sx={{ mb: 4 }}>
-        <br></br>
-        You are claimin', baby! You have {subscriptionData?.units} units of the rewards token  
-        {subscriptionData?.publisher}.
-        <br></br>
-
-        You have so far received {subscriptionData?.totalAmountReceivedUntilUpdatedAt} DAIx 
-        in distributions.
-        <br></br>
-        <br></br>
-        <em>
-            Placeholders:
-            <br></br>
-            Current KPI performance: ✅
+        <div>
+			<Container>
+            <Row>            
             
-            <br></br>
-            Last successful epoch payment was at {date} {time}.
-        </em>
-    </Typography>
-            <form onSubmit={(e: SyntheticEvent) => e.preventDefault()}>
-                <FormGroup>
-                    <TextField
-                        sx={{ m: 1 }}
-                        label="Chain ID"
-                        value={queryChainId}
-                        onChange={(e) =>
-                            setQueryChainId(Number(e.currentTarget.value))
-                        }
-                    />
-                </FormGroup>
-            </form>
-            <GenericDataGrid
-                {...queryResult}
-                pageSize={pageSize}
-                pageUseState={[page, setPage]}
-                gridSortModelUseState={[sortModel, setSortModel]}
-            />
+            <Col>
+                <Card className="KPIStatus">
+                   <div >
+                        <h5>Current KPI status</h5>
+                        <h6>✅?</h6>
+                   </div>
+                </Card>
+
+                <Card className="recentPayout">
+                   <div >
+                        <h5>Latest payment</h5>
+                        <h6>{date} {time}?</h6>
+                   </div>
+                </Card>
+                 
+                <Card className="indexUnits">
+                   <div >
+                        <h5>PCR token units</h5>
+                        <h6>{subscriptionData?.units}</h6>
+                   </div>
+                </Card>
+
+            </Col>
+
+            <Col>
+                <Card className="balance" >
+                    <h2><strong>Total Rewards Received</strong></h2>
+                    <h3>{subscriptionData?.totalAmountReceivedUntilUpdatedAt} DAIx</h3>
+        
+                    <h5><strong>Successful epochs</strong></h5>
+                    <h6>5?</h6>
+                </Card>
+            </Col>
+
+            </Row>
+            </Container>
+
+            </div>
         </>
     );
 };

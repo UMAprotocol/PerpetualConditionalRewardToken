@@ -48,10 +48,10 @@ function App() {
                     <Loader />
                 ) : (
                     <SignerContext.Provider value={[chainId, signerAddress]}>
-                        <Box maxWidth="sm">
+                        <Box maxWidth="{false}">
                             <Typography variant="caption" sx={{ mb: 4 }}>
-                                <em>You are connected. You are on network [{chainId}
-                                ] and your wallet address is [{signerAddress}].</em>
+                                <em>You are on network [{chainId}] and your wallet address 
+                                is [{signerAddress}].</em>
                             </Typography>
                         </Box>
                                 <IndexSubscription />
