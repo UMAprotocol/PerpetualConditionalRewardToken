@@ -19,17 +19,35 @@ import {
 import { SignerContext } from "../SignerContext";
 import { Error } from "../Error";
 import { sfSubgraph } from "../redux/store";
+import { ethers } from "ethers";
 
 export const ListIndexEventsForSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
     const [page, setPage] = useState<number>(1);
     const [queryChainId, setQueryChainId] = useState<number>(chainId);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [accountAddress, setAccountAddress] = useState<string>("0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47");
 
-    useEffect(() => {
-        setPage(1);
-    }, [queryChainId, accountAddress]);
+    const queryResult = sfSubgraph.useIndexSubscriptionsQuery({
+        chainId: queryChainId,
+        filter: {
+            subscriber: signerAddress,
+        },
+    });
+    const data = queryResult.data
+    var subscriptionData;
+    if (data) {
+        const ddata = data.data
+        if (ddata) {
+            for (var i = 0; i < ddata.length; i++) {
+                subscriptionData = ddata.at(i);
+                if (!subscriptionData) continue;
+                if (subscriptionData.publisher == "0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()) {
+                    console.log(subscriptionData);
+                    break;
+                }
+            }
+        }
+    }
 
     const {
         data: pagedEvents,
@@ -42,8 +60,10 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
             chainId: queryChainId,
             filter: {
                 addresses_contains: ["0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()],
-                name: "Sent", // triggered on ida.distribute, and is not called in the contract for any other reason
-                blockNumber_gte: "31298984", // only get events since subscription was created
+                // Sent is triggered on ida.distribute, and is not called in the contract for any other reason.
+                name: "Sent",
+                // Only get events since subscription was created
+                blockNumber_gte: subscriptionData?.createdAtBlockNumber.toString() || "0",
             },
         },
         {
@@ -52,7 +72,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
     );
 
     console.log(pagedEvents);
-
+    
     return (
         <>
             {isLoading ? (
@@ -66,7 +86,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
                             <TableRow>
                                 <TableCell>Distribution</TableCell>
                                 <TableCell>Transaction hash</TableCell>
-                                <TableCell>Amount</TableCell>
+                                <TableCell>Total amount to all recipients</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
