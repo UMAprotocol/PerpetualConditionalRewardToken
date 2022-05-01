@@ -51,8 +51,8 @@ export const IndexSubscription: FC = (): ReactElement => {
     var totalDistributionsReceived = parseInt(subscriptionData?.totalAmountReceivedUntilUpdatedAt || "0");
     for (var i = 0; i < paymentsSinceLastUpdatedBlockData?.length; i++) {
         let paymentEvent = paymentsSinceLastUpdatedBlockData.at(i) as SentEvent
-        totalDistributionsReceived += parseInt(paymentEvent.amount) * parseInt(subscriptionData?.units || "0");
-        totalDistributionsReceived /= 30  // TODO: get total number of units for the IDA
+        totalDistributionsReceived += (parseInt(paymentEvent.amount) * parseInt(subscriptionData?.units || "0"))/20;
+        // TODO: get total number of units for the IDA
     }
     let totalDistributionsReceived_ether = ethers.utils.formatEther(totalDistributionsReceived.toString());
     totalDistributionsReceived_ether = (+totalDistributionsReceived_ether).toFixed(4)
