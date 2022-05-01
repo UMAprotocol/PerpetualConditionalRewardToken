@@ -40,10 +40,13 @@ contract DividendRightsToken is
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
+
     bytes private _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
-    uint256 private _timestamp;
+    uint256 private _oracleRequestTimestamp;
     uint256 private _payoutAmountOnOracleConfirmation = 10;
+    uint256 private _oracleRequestLiveness_sec = 30;
+    uint256 private _oracleRequestInterval_sec = 0;
 
     OptimisticOracleInterface _oracle;
 
@@ -59,17 +62,19 @@ contract DividendRightsToken is
     event OracleVerificationResult(bool);
     event UpkeepPerformedEvent();
 
-    /**
-    * Use an interval in seconds and a timestamp to slow execution of Upkeep
-    */
-    uint public immutable _upkeepInterval_sec;
-    uint public _lastTimeStamp;
+    // Keepers will monitor these variables and initiate oracle requests/settlements when needed
+    uint256 public immutable _upkeepInterval_sec;  // How frequently keepers are to monitor checkUpkeep
+    bool public _oracleSettlementOverdue = false;
+    bool public _oracleRequestOverdue = false;
+    uint256 public _oracleRequestDueAt_timestamp = type(uint256).max;
+    uint256 public _oracleSettlementDueAt_timestamp = type(uint256).max;
 
 
     constructor(
         string memory name,
         string memory symbol,
-        uint upkeepInterval_sec)
+        uint256 oracleRequestInterval_sec,
+        uint256 upkeepInterval_sec)
         /*
         ISuperToken cashToken,
         ISuperfluid host,
@@ -77,6 +82,12 @@ contract DividendRightsToken is
         ERC20(name, symbol) 
     {
         _oracle = _getOptimisticOracle();
+        _oracleRequestInterval_sec = oracleRequestInterval_sec;
+        
+        // Schedule the first request (processing in this contract will be triggered by a Keeper when the time comes).
+        _oracleRequestDueAt_timestamp = block.timestamp;// + _oracleRequestInterval_sec;
+        _upkeepInterval_sec = upkeepInterval_sec;
+
 
         // Kovan superfluid addresses
         // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
@@ -102,9 +113,6 @@ contract DividendRightsToken is
         // Hard-code some initial recipients of IDA
         issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
         issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
-  
-        _upkeepInterval_sec = upkeepInterval_sec;
-        _lastTimeStamp = block.timestamp;
 
         transferOwnership(msg.sender);
         _decimals = 0;
@@ -146,16 +154,15 @@ contract DividendRightsToken is
     function requestOracleVerification() public returns (bool) {
         address requester = address(this);
 
-        _timestamp = block.timestamp;
+        _oracleRequestTimestamp = block.timestamp;  // Used as a request ID of sorts
         int256 proposedPrice = 1 ether;
-        uint256 customLiveness_sec = 30;
 
         // Request price from oracle to start the process
-        _oracle.requestPrice(_identifier, _timestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
+        _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
         // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
-        _oracle.setCustomLiveness(_identifier, _timestamp, _ancillaryData, customLiveness_sec);
+        _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
         // Propose that the task has been completed
-        _oracle.proposePrice(requester, _identifier, _timestamp, _ancillaryData, proposedPrice); 
+        _oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
 
         return true;
     }
@@ -163,7 +170,7 @@ contract DividendRightsToken is
     /// @dev Retrieve the verification result, if the verification process has finished
     function getOracleVerificationResult() public returns (bool) {
         bool verified = false;
-        int256 resolvedPrice = _oracle.settleAndGetPrice(_identifier, _timestamp, _ancillaryData);
+        int256 resolvedPrice = _oracle.settleAndGetPrice(_identifier, _oracleRequestTimestamp, _ancillaryData);
         emit OracleVerificationResult(verified);
         if (1 ether == resolvedPrice) {
             verified = true;
@@ -271,20 +278,46 @@ contract DividendRightsToken is
         uint256 /*_timestamp*/,
         bytes memory /*_ancillaryData*/,
         uint256 /*_refund*/
-    ) external override {}
+    ) external override {
+        // TODO: handle disputes - schedule another price request in its place?
+    }
+
+    function checkForOverdueActions() public view returns (bool oracleRequestOverdue, bool oracleSettlementOverdue) {
+        oracleRequestOverdue = (block.timestamp > _oracleRequestDueAt_timestamp);
+        oracleSettlementOverdue = (block.timestamp > _oracleSettlementDueAt_timestamp);
+    }
 
     function checkUpkeep(bytes calldata /* checkData */) external view override
-        returns (bool upkeepNeeded, bytes memory /* performData */) {
-        upkeepNeeded = (block.timestamp - _lastTimeStamp) > _upkeepInterval_sec;
+        returns (bool, bytes memory /* performData */) {
+        (bool oracleSettlementOverdue, bool oracleRequestOverdue) = checkForOverdueActions();
+        bool upkeepNeeded = oracleSettlementOverdue || oracleRequestOverdue;
         return (upkeepNeeded, "");
     }
 
     function performUpkeep(bytes calldata /* performData */) external override {
-        // Revalidate that upkeep is required in case manually triggered.
-        if ((block.timestamp - _lastTimeStamp) > _upkeepInterval_sec ) {
-            _lastTimeStamp = block.timestamp;
-            emit UpkeepPerformedEvent();
+        emit UpkeepPerformedEvent();
+
+        // Re-validate that upkeep is required, as the method can be manually triggered by anyone.
+        (_oracleRequestOverdue, _oracleSettlementOverdue) = checkForOverdueActions();
+        require(_oracleSettlementOverdue || _oracleRequestOverdue, "Upkeep not needed.");
+
+        if (_oracleSettlementOverdue) {
+            distributeIfOracleVerificationSucceeded();
+            // Clear the settlement scheduling
+            // TODO: handle disputes, e.g. check again later if settlement not resolved
+            _oracleSettlementDueAt_timestamp = type(uint256).max;
+            _oracleSettlementOverdue = false;  // Not strictly necessary
+        }
+
+        // This will update _oracleSettlementDueAt_timestamp, but that's acceptable because the _oracleSettlementOverdue
+        // check has already been performed.
+        if (_oracleRequestOverdue) {
             require(requestOracleVerification(), "Oracle request failed.");
+            // Schedule for another request to happen
+            _oracleRequestDueAt_timestamp = block.timestamp + _oracleRequestInterval_sec;
+            // Schedule for the price resolution to be retrieved after the liveness elapses
+            _oracleSettlementDueAt_timestamp = block.timestamp + _oracleRequestLiveness_sec;
+            _oracleRequestOverdue = false;  // Not strictly necessary
         }
     }
 }
