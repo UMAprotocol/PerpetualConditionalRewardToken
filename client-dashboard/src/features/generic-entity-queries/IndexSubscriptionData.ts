@@ -4,7 +4,7 @@ import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 import React from "react";
 
 let queryChainId = 42;
-let tokenContractAddress = "0x901FFECCA2aF81604ca27B22403d5905684518C0";
+let tokenContractAddress = "0x62B7bbfF2193F03931861D1b1aF097c1b3A8fBf5";
 
 
 // Note this doesn't deal with paging requests

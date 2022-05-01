@@ -16,7 +16,7 @@ import "./IndexSubscription.css"
 import { ethers } from "ethers";
 import { allDistributionDataSince, mostRecentDistributionSince } from "./IndexSubscriptionData";
 
-let tokenContractAddress = "0x901FFECCA2aF81604ca27B22403d5905684518C0";
+let tokenContractAddress = "0x62B7bbfF2193F03931861D1b1aF097c1b3A8fBf5";
 
 export const IndexSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
