@@ -181,14 +181,15 @@ contract DividendRightsToken is
     }
 
     /// @dev Distribute predefined amount among all token holders IFF verification succeeded
-    function distributeIfOracleVerificationSucceeded() public onlyOwner {
+    function distributeIfOracleVerificationSucceeded() public /*onlyOwner*/ {
         if (getOracleVerificationResult()) {
             distribute(_payoutAmountOnOracleConfirmation);
         }
     }
 
     /// @dev Distribute `amount` of cash among all token holders
-    function distribute(uint256 cashAmount) public onlyOwner {
+    // TODO: restrict who can call this lol
+    function distribute(uint256 cashAmount) public /*onlyOwner*/ {
         (uint256 actualCashAmount,) = _ida.calculateDistribution(
             _cashToken,
             address(this), INDEX_ID,
