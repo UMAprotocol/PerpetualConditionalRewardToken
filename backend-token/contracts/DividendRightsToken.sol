@@ -21,6 +21,11 @@ import { OptimisticOracleInterface } from "@uma/core/contracts/oracle/interfaces
 import {FinderInterface} from "@uma/core/contracts/oracle/interfaces/FinderInterface.sol";
 import {OracleInterfaces} from "@uma/core/contracts/oracle/implementation/Constants.sol";
 
+
+// For automated triggering of "upkeep" by the Chain-Link Keepers
+import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
+
+
 /**
  * The dividends rights token show cases two use cases
  * 1. Use Instant distribution agreement to distribute tokens to token holders.
@@ -29,6 +34,7 @@ import {OracleInterfaces} from "@uma/core/contracts/oracle/implementation/Consta
 contract DividendRightsToken is
     Ownable,
     ERC20,
+    KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Keepers
     OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
 
@@ -51,11 +57,19 @@ contract DividendRightsToken is
     event PriceProposedEvent();
     event PriceSettledEvent(int256);
     event OracleVerificationResult(bool);
+    event UpkeepPerformedEvent();
+
+    /**
+    * Use an interval in seconds and a timestamp to slow execution of Upkeep
+    */
+    uint public immutable _upkeepInterval_sec;
+    uint public _lastTimeStamp;
 
 
     constructor(
         string memory name,
-        string memory symbol)
+        string memory symbol,
+        uint upkeepInterval_sec)
         /*
         ISuperToken cashToken,
         ISuperfluid host,
@@ -89,6 +103,9 @@ contract DividendRightsToken is
         issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
         issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
   
+        _upkeepInterval_sec = upkeepInterval_sec;
+        _lastTimeStamp = block.timestamp;
+
         transferOwnership(msg.sender);
         _decimals = 0;
     }
@@ -126,7 +143,7 @@ contract DividendRightsToken is
     }
 
     /// @dev Request verification from the oracle that distribution should be paid out
-    function requestOracleVerification() external returns (bool) {
+    function requestOracleVerification() public returns (bool) {
         address requester = address(this);
 
         _timestamp = block.timestamp;
@@ -256,4 +273,18 @@ contract DividendRightsToken is
         uint256 /*_refund*/
     ) external override {}
 
+    function checkUpkeep(bytes calldata /* checkData */) external view override
+        returns (bool upkeepNeeded, bytes memory /* performData */) {
+        upkeepNeeded = (block.timestamp - _lastTimeStamp) > _upkeepInterval_sec;
+        return (upkeepNeeded, "");
+    }
+
+    function performUpkeep(bytes calldata /* performData */) external override {
+        // Revalidate that upkeep is required in case manually triggered.
+        if ((block.timestamp - _lastTimeStamp) > _upkeepInterval_sec ) {
+            _lastTimeStamp = block.timestamp;
+            emit UpkeepPerformedEvent();
+            require(requestOracleVerification(), "Oracle request failed.");
+        }
+    }
 }
