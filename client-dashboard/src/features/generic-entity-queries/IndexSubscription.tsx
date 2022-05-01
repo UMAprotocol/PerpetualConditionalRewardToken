@@ -16,6 +16,8 @@ import "./IndexSubscription.css"
 import { ethers } from "ethers";
 import { allDistributionDataSince, mostRecentDistributionSince } from "./IndexSubscriptionData";
 
+let tokenContractAddress = "0x901FFECCA2aF81604ca27B22403d5905684518C0";
+
 export const IndexSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
     const [queryChainId, setQueryChainId] = useState<number>(chainId);
@@ -34,7 +36,7 @@ export const IndexSubscription: FC = (): ReactElement => {
             for (var i = 0; i < ddata.length; i++) {
                 subscriptionData = ddata.at(i);
                 if (!subscriptionData) continue;
-                if (subscriptionData.publisher == "0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()) {
+                if (subscriptionData.publisher == tokenContractAddress.toLowerCase()) {
                     console.log(subscriptionData);
                     break;
                 }
@@ -72,7 +74,7 @@ export const IndexSubscription: FC = (): ReactElement => {
                 <Card className="KPIStatus">
                    <div >
                         <h5>Current KPI status</h5>
-                        <h6>✅?</h6>
+                        <h6>?</h6>
                    </div>
                 </Card>
 

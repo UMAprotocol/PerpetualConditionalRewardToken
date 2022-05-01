@@ -20,6 +20,8 @@ import { Error } from "../Error";
 import { sfSubgraph } from "../redux/store";
 import { formatTimestamp } from "./../utils.js"
 
+let tokenContractAddress = "0x901FFECCA2aF81604ca27B22403d5905684518C0";
+
 export const ListIndexEventsForSubscription: FC = (): ReactElement => {
     const [chainId, signerAddress] = useContext(SignerContext);
     const [page, setPage] = useState<number>(1);
@@ -29,7 +31,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
     const queryResult = sfSubgraph.useIndexSubscriptionsQuery({
         chainId: queryChainId,
         filter: {
-            subscriber: signerAddress,
+            subscriber: "0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B",// signerAddress,
         },
     });
     const data = queryResult.data
@@ -40,7 +42,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
             for (var i = 0; i < ddata.length; i++) {
                 subscriptionData = ddata.at(i);
                 if (!subscriptionData) continue;
-                if (subscriptionData.publisher == "0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()) {
+                if (subscriptionData.publisher == tokenContractAddress.toLowerCase()) {
                     break;
                 }
             }
@@ -57,7 +59,7 @@ export const ListIndexEventsForSubscription: FC = (): ReactElement => {
         {
             chainId: queryChainId,
             filter: {
-                addresses_contains: ["0x3e0182261dBDFFb63CBDa3e54B6e4A83a8549B47".toLowerCase()],
+                addresses_contains: [tokenContractAddress.toLowerCase()],
                 // Sent is triggered on ida.distribute, and is not called in the contract for any other reason.
                 name: "Sent",
                 // Only get events since subscription was created

@@ -103,7 +103,7 @@ export const InitializeSuperfluidSdk: FC<Props> = ({
 
     return (
         <Button variant="contained" onClick={handleWallet}>
-            Connect MetaMask
+            Connect MetaMask (Kovan)
         </Button>
     );
 };
