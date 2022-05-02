@@ -272,6 +272,8 @@ contract DividendRightsToken is
         bytes memory /*_ancillaryData*/
     ) external override {
         emit PriceProposedEvent();
+        // Schedule for the price resolution to be retrieved after the liveness elapses
+        _oracleSettlementDueAt_timestamp = block.timestamp + _oracleRequestLiveness_sec;
     }
 
     function priceDisputed(
@@ -310,14 +312,10 @@ contract DividendRightsToken is
             _oracleSettlementOverdue = false;  // Not strictly necessary
         }
 
-        // This will update _oracleSettlementDueAt_timestamp, but that's acceptable because the _oracleSettlementOverdue
-        // check has already been performed.
         if (_oracleRequestOverdue) {
             require(requestOracleVerification(), "Oracle request failed.");
             // Schedule for another request to happen
             _oracleRequestDueAt_timestamp = block.timestamp + _oracleRequestInterval_sec;
-            // Schedule for the price resolution to be retrieved after the liveness elapses
-            _oracleSettlementDueAt_timestamp = block.timestamp + _oracleRequestLiveness_sec;
             _oracleRequestOverdue = false;  // Not strictly necessary
         }
     }
