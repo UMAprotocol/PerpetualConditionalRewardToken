@@ -46,6 +46,7 @@ contract DividendRightsToken is
     bytes private _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
     OptimisticOracleInterface _oracle;
+    IERC20 private _oracleRequestCurrency;
 
     uint256 private _oracleRequestTimestamp;
     uint256 private _payoutAmountOnOracleConfirmation = 1 ether;
@@ -85,7 +86,14 @@ contract DividendRightsToken is
         ERC20(name, symbol) 
     {
         if (actuallyUseOracle) {
-        _oracle = _getOptimisticOracle();
+        // Kovan UMA Optimistic Oracle addresses
+        // From https://docs.umaproject.org/dev-ref/addresses
+        // _oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
+        // _oracleRequestCurrency = IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99));  // DAI
+
+        // Rinkeby UMA Optimistic Oracle addresses
+        _oracle = OptimisticOracleInterface(address(0x3746badD4d6002666dacd5d7bEE19f60019A8433));
+        _oracleRequestCurrency = IERC20(address(0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa));  // DAI
         }
 
         _oracleRequestInterval_sec = oracleRequestInterval_sec;
@@ -156,15 +164,6 @@ contract DividendRightsToken is
         );
     }
 
-    function _getOptimisticOracle() internal pure returns (OptimisticOracleInterface) {
-        // Kovan UMA Optimistic Oracle address
-        // From https://docs.umaproject.org/dev-ref/addresses
-        // return OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
-
-        // Rinkeby UMA Optimistic Oracle address
-        return OptimisticOracleInterface(address(0x3746badD4d6002666dacd5d7bEE19f60019A8433));
-    }
-
     /// @dev Request verification from the oracle that distribution should be paid out
     function requestOracleVerification() public returns (bool) {
         address requester = address(this);
@@ -176,7 +175,7 @@ contract DividendRightsToken is
         }
 
         // Request price from oracle to start the process
-        // _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
+        _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestCurrency, 0);
         // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
         _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
         // Propose that the task has been completed
