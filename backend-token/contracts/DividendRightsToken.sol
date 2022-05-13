@@ -44,8 +44,8 @@ contract DividendRightsToken is
     bytes private _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
     uint256 private _oracleRequestTimestamp;
-    uint256 private _payoutAmountOnOracleConfirmation = 10;
-    uint256 private _oracleRequestLiveness_sec = 30;
+    uint256 private _payoutAmountOnOracleConfirmation = 1 ether;
+    uint256 private _oracleRequestLiveness_sec = 10;
     uint256 private _oracleRequestInterval_sec = 0;
 
     OptimisticOracleInterface _oracle;
@@ -195,7 +195,7 @@ contract DividendRightsToken is
             address(this), INDEX_ID,
             cashAmount);
 
-        _cashToken.transferFrom(owner(), address(this), actualCashAmount);
+        //_cashToken.transferFrom(owner(), address(this), actualCashAmount);
 
         _host.callAgreement(
             _ida,
