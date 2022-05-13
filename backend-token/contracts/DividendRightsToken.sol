@@ -49,9 +49,10 @@ contract DividendRightsToken is
     IERC20 private _oracleRequestCurrency;
 
     uint256 private _oracleRequestTimestamp;
-    uint256 private _payoutAmountOnOracleConfirmation = 1 ether;
-    uint256 private _oracleRequestLiveness_sec = 10;
-    uint256 private _oracleRequestInterval_sec = 0;
+    uint256 public _payoutAmountOnOracleConfirmation = 1 ether;
+    uint256 public _oracleRequestLiveness_sec = 10;
+    uint256 public _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
+
 
 
     ISuperToken private _cashToken;
@@ -67,18 +68,16 @@ contract DividendRightsToken is
     event UpkeepPerformedEvent();
 
     // Keepers will monitor these variables and initiate oracle requests/settlements when needed
-    uint256 public immutable _upkeepInterval_sec;  // How frequently keepers are to monitor checkUpkeep
+    uint256 public immutable _upkeepInterval_sec = 15;  // How frequently keepers are to monitor checkUpkeep
     bool public _oracleSettlementOverdue = false;
     bool public _oracleRequestOverdue = false;
     uint256 public _oracleRequestDueAt_timestamp = type(uint256).max;
     uint256 public _oracleSettlementDueAt_timestamp = type(uint256).max;
 
-
     constructor(
         string memory name,
-        string memory symbol,
-        uint256 oracleRequestInterval_sec,
-        uint256 upkeepInterval_sec)
+        string memory symbol
+        )
         /*
         ISuperToken cashToken,
         ISuperfluid host,
@@ -96,11 +95,8 @@ contract DividendRightsToken is
         _oracleRequestCurrency = IERC20(address(0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa));  // DAI
         }
 
-        _oracleRequestInterval_sec = oracleRequestInterval_sec;
-
         // Schedule the first request (processing in this contract will be triggered by a Keeper when the time comes).
         _oracleRequestDueAt_timestamp = block.timestamp;// + _oracleRequestInterval_sec;
-        _upkeepInterval_sec = upkeepInterval_sec;
 
         if (actuallyUseIda) {
         // Kovan superfluid addresses
@@ -136,6 +132,21 @@ contract DividendRightsToken is
 
         transferOwnership(msg.sender);
         _decimals = 0;
+    }
+
+    function setPayoutAmount(uint256 amount_eth) external
+    {
+        _payoutAmountOnOracleConfirmation = amount_eth;
+    }
+
+    function setOracleRequestInterval(uint256 interval_sec) external
+    {
+        _oracleRequestInterval_sec = interval_sec;
+    }
+
+    function setOracleRequestLiveness(uint256 liveness_sec) external
+    {
+        _oracleRequestLiveness_sec = liveness_sec;
     }
 
     function decimals() public view override returns (uint8) {
