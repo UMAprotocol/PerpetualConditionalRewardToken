@@ -68,6 +68,7 @@ contract DividendRightsToken is
     bool public _oracleRequestOverdue = false;
     uint256 public _oracleRequestDueAt_timestamp = type(uint256).max;
     uint256 public _oracleSettlementDueAt_timestamp = type(uint256).max;
+    IERC20 public _oracleRewardCurrency;
 
 
     constructor(
@@ -83,6 +84,7 @@ contract DividendRightsToken is
     {
         _oracle = _getOptimisticOracle();
         _oracleRequestInterval_sec = oracleRequestInterval_sec;
+
         
         // Schedule the first request (processing in this contract will be triggered by a Keeper when the time comes).
         _oracleRequestDueAt_timestamp = block.timestamp;// + _oracleRequestInterval_sec;
@@ -91,9 +93,14 @@ contract DividendRightsToken is
 
         // Kovan superfluid addresses
         // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
-        ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
-        ISuperToken cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);
-        IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x556ba0b3296027Dd7BCEb603aE53dEc3Ac283d2b);
+        // ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
+        // ISuperToken cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);  // fDAI
+        // IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x556ba0b3296027Dd7BCEb603aE53dEc3Ac283d2b);
+
+        // Rinkeby superfluid addresses
+        ISuperfluid host = ISuperfluid(0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6);
+        ISuperToken cashToken = ISuperToken(0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7);  // fDAI
+        IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x32E0ecb72C1dDD92B007405F8102c1556624264D);
 
         _cashToken = cashToken;
         _host = host;
@@ -147,7 +154,10 @@ contract DividendRightsToken is
     function _getOptimisticOracle() internal pure returns (OptimisticOracleInterface) {
         // Kovan UMA Optimistic Oracle address
         // From https://docs.umaproject.org/dev-ref/addresses
-        return OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
+        // return OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
+
+        // Rinkeby UMA Optimistic Oracle address
+        return OptimisticOracleInterface(address(0x3746badD4d6002666dacd5d7bEE19f60019A8433));
     }
 
     /// @dev Request verification from the oracle that distribution should be paid out
@@ -157,8 +167,10 @@ contract DividendRightsToken is
         _oracleRequestTimestamp = block.timestamp;  // Used as a request ID of sorts
         int256 proposedPrice = 1 ether;
 
+        _oracleRewardCurrency = IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99));
+
         // Request price from oracle to start the process
-        _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
+        _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRewardCurrency, 0);
         // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
         _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
         // Propose that the task has been completed
