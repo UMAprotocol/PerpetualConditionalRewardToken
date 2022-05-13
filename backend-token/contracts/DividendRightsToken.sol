@@ -38,7 +38,7 @@ contract DividendRightsToken is
     OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
     bool private actuallyUseOracle = true;
-    bool private actuallyUseIda = false;
+    bool private actuallyUseIda = true;
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
@@ -106,12 +106,12 @@ contract DividendRightsToken is
         // Kovan superfluid addresses
         // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
         // ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
-        // ISuperToken cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);  // fDAI
+        // ISuperToken cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);  // fDAIx
         // IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x556ba0b3296027Dd7BCEb603aE53dEc3Ac283d2b);
 
         // Rinkeby superfluid addresses
         ISuperfluid host = ISuperfluid(0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6);
-        ISuperToken cashToken = ISuperToken(0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7);  // fDAI
+        ISuperToken cashToken = ISuperToken(0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90);  // fDAIx
         IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x32E0ecb72C1dDD92B007405F8102c1556624264D);
 
         _cashToken = cashToken;
