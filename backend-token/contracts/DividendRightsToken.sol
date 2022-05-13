@@ -37,18 +37,21 @@ contract DividendRightsToken is
     KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Keepers
     OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
+    bool private actuallyUseOracle = true;
+    bool private actuallyUseIda = false;
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
 
     bytes private _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
+    OptimisticOracleInterface _oracle;
+
     uint256 private _oracleRequestTimestamp;
     uint256 private _payoutAmountOnOracleConfirmation = 1 ether;
     uint256 private _oracleRequestLiveness_sec = 10;
     uint256 private _oracleRequestInterval_sec = 0;
 
-    OptimisticOracleInterface _oracle;
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -68,7 +71,6 @@ contract DividendRightsToken is
     bool public _oracleRequestOverdue = false;
     uint256 public _oracleRequestDueAt_timestamp = type(uint256).max;
     uint256 public _oracleSettlementDueAt_timestamp = type(uint256).max;
-    IERC20 public _oracleRewardCurrency;
 
 
     constructor(
@@ -82,15 +84,17 @@ contract DividendRightsToken is
         IInstantDistributionAgreementV1 ida)*/
         ERC20(name, symbol) 
     {
+        if (actuallyUseOracle) {
         _oracle = _getOptimisticOracle();
+        }
+
         _oracleRequestInterval_sec = oracleRequestInterval_sec;
 
-        
         // Schedule the first request (processing in this contract will be triggered by a Keeper when the time comes).
         _oracleRequestDueAt_timestamp = block.timestamp;// + _oracleRequestInterval_sec;
         _upkeepInterval_sec = upkeepInterval_sec;
 
-
+        if (actuallyUseIda) {
         // Kovan superfluid addresses
         // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
         // ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
@@ -120,6 +124,7 @@ contract DividendRightsToken is
         // Hard-code some initial recipients of IDA
         issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
         issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
+        }
 
         transferOwnership(msg.sender);
         _decimals = 0;
@@ -166,11 +171,12 @@ contract DividendRightsToken is
 
         _oracleRequestTimestamp = block.timestamp;  // Used as a request ID of sorts
         int256 proposedPrice = 1 ether;
-
-        _oracleRewardCurrency = IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99));
+        if (!actuallyUseOracle) {
+            return true;
+        }
 
         // Request price from oracle to start the process
-        _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRewardCurrency, 0);
+        // _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99)), 0);
         // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
         _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
         // Propose that the task has been completed
@@ -182,6 +188,9 @@ contract DividendRightsToken is
     /// @dev Retrieve the verification result, if the verification process has finished
     function getOracleVerificationResult() public returns (bool) {
         bool verified = false;
+        if (!actuallyUseOracle) {
+            return true;
+        }
         int256 resolvedPrice = _oracle.settleAndGetPrice(_identifier, _oracleRequestTimestamp, _ancillaryData);
         emit OracleVerificationResult(verified);
         if (1 ether == resolvedPrice) {
@@ -195,6 +204,9 @@ contract DividendRightsToken is
     /// @dev Distribute predefined amount among all token holders IFF verification succeeded
     function distributeIfOracleVerificationSucceeded() public /*onlyOwner*/ {
         if (getOracleVerificationResult()) {
+            if (!actuallyUseIda) {
+                return;
+            }
             distribute(_payoutAmountOnOracleConfirmation);
         }
     }
