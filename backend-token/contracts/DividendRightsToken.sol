@@ -314,13 +314,18 @@ contract DividendRightsToken is
     }
 
    function checkUpkeep(bytes calldata /* checkData */) external view override
-        returns (bool, bytes memory) {
-        }
+        returns (bool upkeepNeeded, bytes memory execPayload_gelato) {
+        (bool oracleSettlementOverdue, bool oracleRequestOverdue) = checkForOverdueActions();
+        upkeepNeeded = oracleSettlementOverdue || oracleRequestOverdue;
 
-    function performUpkeep(bytes calldata /*performData */) external override {
+        bytes memory dummyCalldata = "";
+        execPayload_gelato = abi.encodeWithSelector(
+            this.performUpkeep.selector,
+            dummyCalldata
+        );
     }
 
-    function performUpkeepNoData(/*bytes calldata performData */) external /*override*/ {
+    function performUpkeep(bytes calldata /*performData */) external override {
         emit UpkeepPerformedEvent();
         // Re-validate that upkeep is required, as the method can be manually triggered by anyone.
         (_oracleRequestOverdue, _oracleSettlementOverdue) = checkForOverdueActions();
@@ -342,16 +347,4 @@ contract DividendRightsToken is
         }
     }
 
-    function checkUpkeepNoData() external view 
-        returns (bool upkeepNeeded, bytes memory execPayload_gelato) {
-        (bool oracleSettlementOverdue, bool oracleRequestOverdue) = checkForOverdueActions();
-        upkeepNeeded = oracleSettlementOverdue || oracleRequestOverdue;
-
-        //bytes memory dummyCalldata = "";
-        execPayload_gelato = abi.encodeWithSelector(
-            this.performUpkeepNoData.selector
-            //dummyCalldata
-        );
-        //return (upkeepNeeded, execPayload_gelato);
-    }
 }
