@@ -18,9 +18,9 @@ class DisplayBalance extends Component {
             this.setState({balance: this.props.fUSDCxBal})
             setInterval(() => {
                 this.setState({
-                    balance: (Number(this.state.balance) + (calculateStreamPerSecond(this.props.outflows) / 10)).toFixed(5)
-                })
-            }, 
+                    balance: (Number(this.state.balance)).toFixed(2)
+                // }, () => {console.log(this.state.balance);})
+            })}, 
             100)
         }
     }
@@ -39,8 +39,8 @@ render() {
     return (
         <div >
         <h5>SuperToken USDCx Balance </h5>
-        <h2>{this.props.outflows === 0? '$0.00'
-        : `$${this.state.balance}` }</h2>
+        {/* <h2>{this.props.outflows === 0? '$0.00' */}
+        <h2>${this.state.balance}</h2>
         </div>
     )       
     }

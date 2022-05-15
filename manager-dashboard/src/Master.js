@@ -40,7 +40,8 @@ class Master extends Component {
             editingAddress: "",
             outFlows: [],
             totalOutflows: 0, 
-            endDate: ''
+            endDate: '',
+            pcrContract: '0x3056203DF5002FcD633403279f29E8eb72D492D1'
         }
 
         this.initWeb3 = this.initWeb3.bind(this);
@@ -160,11 +161,12 @@ isConnected() {
 }
 
 async getBalance() {
-    const fUSDCxBal = await this.state.fUSDCx.methods.balanceOf(this.state.account).call({from: this.state.account});
+    const fUSDCxBal = await this.state.fUSDCx.methods.balanceOf(this.state.pcrContract).call({from: this.state.account});
     const adjustedfUSDCx = Number(new BigNumber(fUSDCxBal).shiftedBy(-18)).toFixed(5);
 
     this.setState({
-        fUSDCxBal: adjustedfUSDCx
+        fUSDCxBal: adjustedfUSDCx,  // What's this used for?
+        balance: adjustedfUSDCx  // Added, perhaps piggybacking on balance inappropriately?
     })
 }
 
