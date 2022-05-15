@@ -43,6 +43,7 @@ class Balances extends Component {
                <Card className="balances">
                     <DisplayBalance 
                     fUSDCxBal={this.props.fUSDCxBal}
+                    ethBalance={this.props.ethBalance}
                     outflows={this.props.outflows}
 
                     />

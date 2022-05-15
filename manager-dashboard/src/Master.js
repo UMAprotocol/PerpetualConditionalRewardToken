@@ -163,10 +163,14 @@ isConnected() {
 async getBalance() {
     const fUSDCxBal = await this.state.fUSDCx.methods.balanceOf(this.state.pcrContract).call({from: this.state.account});
     const adjustedfUSDCx = Number(new BigNumber(fUSDCxBal).shiftedBy(-18)).toFixed(5);
+    const ethBal = await this.state.web3.eth.getBalance(this.state.pcrContract)
+    const adjustedEth = Number(new BigNumber(ethBal).shiftedBy(-18)).toFixed(5);
+    console.log(adjustedEth)
 
     this.setState({
-        fUSDCxBal: adjustedfUSDCx,  // What's this used for?
-        balance: adjustedfUSDCx  // Added, perhaps piggybacking on balance inappropriately?
+        fUSDCxBal: adjustedfUSDCx,  // Passed into DisplayBalance as a property
+        balance: adjustedfUSDCx,  // Added, perhaps piggybacking on balance inappropriately?
+        ethBalance: adjustedEth,
     })
 }
 
@@ -366,6 +370,7 @@ async componentDidMount() {
             <Container>
                 <Balances
                 fUSDCxBal={this.state.fUSDCxBal}
+                ethBalance={this.state.ethBalance}
                 funding={this.addFunding}
                 withdraw={this.withdrawFunding}
                 outflows={this.state.totalOutflows}
