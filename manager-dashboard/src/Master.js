@@ -7,6 +7,7 @@ import { fUSDC_address } from "./config";
 import { fUSDCx_address } from "./config";
 import { fUSDCxabi } from "./abis/fUSDCxabi";
 import {ERC20abi} from "./abis/ERC20abi";
+import { perpetualConditionalRewardTokenabi } from "./abis/PerpetualConditionalRewardTokenabi";
 import ConnectWallet from "./ConnectWallet";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";

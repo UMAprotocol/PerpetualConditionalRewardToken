@@ -6,6 +6,7 @@ import Card from "react-bootstrap/Card";
 import DisplayBalance from "./DisplayBalance";
 import Fund from "./Fund";
 import Withdraw from "./Withdraw";
+import ChangeContractProperties from "./ChangeContractProperties";
 import "./Balances.css";
 import MonthlyOutflows from "./MonthlyOutflows";
 
@@ -59,6 +60,12 @@ class Balances extends Component {
                 <Card className="withdrawFunds">
                     <Withdraw 
 	                withdraw={this.withdrawFunding}
+                    />
+                </Card>
+
+                <Card className="changeContractProperties">
+                    <ChangeContractProperties 
+	                // withdraw={this.withdrawFunding}
                     />
                 </Card>
             </Col>
