@@ -1,4 +1,6 @@
 import React, {Component} from "react";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 import BigNumber from "bignumber.js";
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form';
@@ -35,13 +37,36 @@ class ChangeContractProperties extends Component {
     render() {
         return (
             <div>
-            <Form onSubmit={this.handleSubmit}>
-                <Form.Label htmlFor="funding">Token contract properties: </Form.Label>
-                <InputGroup>
-		            <Form.Control type="text" name="newKpiEvaluationInterval" placeholder={this.props.currentKpiEvaluationInterval} onChange={this.handleChange} value={this.state.newKpiEvaluationInterval}></Form.Control>
-		            <Button type="submit" className="addWithdrawButton" size="sm" >Submit</Button>
-                </InputGroup>
-            </Form>
+            <Row>            
+            
+            <Col>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Label htmlFor="kpiEvaluationInterval">KPI evaluation interval: <br></br>{this.props.currentKpiEvaluationInterval} seconds</Form.Label>
+                    <InputGroup>
+                        <Form.Control type="text" name="newKpiEvaluationInterval" placeholder={this.props.currentKpiEvaluationInterval} onChange={this.handleChange} value={this.state.newKpiEvaluationInterval}></Form.Control>
+                        <Button type="submit" className="addWithdrawButton" size="sm" >Update</Button>
+                    </InputGroup>
+                </Form>
+            </Col>
+            <Col>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Label htmlFor="kpiDisputeWindow">KPI dispute window: <br></br>{this.props.currentKpiDisputeWindow} seconds</Form.Label>
+                    <InputGroup>
+                        <Form.Control type="text" name="newKpiDisputeWindow" placeholder={this.props.currentKpiDisputeWindow} onChange={this.handleChange} value={this.state.newKpiDisputeWindow}></Form.Control>
+                        <Button type="submit" className="addWithdrawButton" size="sm" >Update</Button>
+                    </InputGroup>
+                </Form>
+            </Col>
+            <Col>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Label htmlFor="payoutAmount">Payout amount: <br></br>{this.props.currentPayoutAmount} USDC</Form.Label>
+                    <InputGroup>
+                        <Form.Control type="text" name="newPayoutAmount" placeholder={this.props.currentPayoutAmount} onChange={this.handleChange} value={this.state.newPayoutAmount}></Form.Control>
+                        <Button type="submit" className="addWithdrawButton" size="sm" >Update</Button>
+                    </InputGroup>
+                </Form>
+            </Col>
+            </Row>
             </div>
         )
     }
