@@ -42,7 +42,8 @@ class Master extends Component {
             outFlows: [],
             totalOutflows: 0, 
             endDate: '',
-            pcrContract: '0x3056203DF5002FcD633403279f29E8eb72D492D1'
+            kpiEvaluationInterval: '?',
+            pcrContract_address: '0x3056203DF5002FcD633403279f29E8eb72D492D1'
         }
 
         this.initWeb3 = this.initWeb3.bind(this);
@@ -51,6 +52,8 @@ class Master extends Component {
         this.getBalance = this.getBalance.bind(this);
         this.addFunding = this.addFunding.bind(this);
         this.withdrawFunding = this.withdrawFunding.bind(this);
+        this.changeKpiEvaluationInterval = this.changeKpiEvaluationInterval.bind(this);
+        this.getKpiEvaluationInterval = this.getKpiEvaluationInterval.bind(this);
         this.createStream = this.createStream.bind(this);
         this.toggleCreateModal = this.toggleCreateModal.bind(this);
         this.closeCreateModal = this.closeCreateModal.bind(this);
@@ -80,14 +83,17 @@ class Master extends Component {
         
         const fUSDC = new web3.eth.Contract(ERC20abi, fUSDC_address);
         const fUSDCx = new web3.eth.Contract(fUSDCxabi, fUSDCx_address);
+        const pcrContract = new web3.eth.Contract(perpetualConditionalRewardTokenabi, this.state.pcrContract_address);
         
         this.setState({
             web3: web3,
             provider: provider,
             sf: sf,
             fUSDC: fUSDC,
-            fUSDCx: fUSDCx
+            fUSDCx: fUSDCx,
+            pcrContract: pcrContract,
         })
+        this.getKpiEvaluationInterval();
 
     await this.getAccount();
 
@@ -162,9 +168,9 @@ isConnected() {
 }
 
 async getBalance() {
-    const fUSDCxBal = await this.state.fUSDCx.methods.balanceOf(this.state.pcrContract).call({from: this.state.account});
+    const fUSDCxBal = await this.state.fUSDCx.methods.balanceOf(this.state.pcrContract_address).call({from: this.state.account});
     const adjustedfUSDCx = Number(new BigNumber(fUSDCxBal).shiftedBy(-18)).toFixed(5);
-    const ethBal = await this.state.web3.eth.getBalance(this.state.pcrContract)
+    const ethBal = await this.state.web3.eth.getBalance(this.state.pcrContract_address)
     const adjustedEth = Number(new BigNumber(ethBal).shiftedBy(-18)).toFixed(5);
     console.log(adjustedEth)
 
@@ -189,6 +195,21 @@ async withdrawFunding(amount) {
     await this.state.fUSDCx.methods.downgrade(amount).send({from: this.state.account}).then(console.log)
     .then(
         await this.getBalance()
+    )
+}
+
+async getKpiEvaluationInterval() {
+    const kpiEvaluationInterval = await this.state.pcrContract.methods._oracleRequestInterval_sec().call().then(console.log)
+    .then(
+        this.setState({kpiEvaluationInterval: kpiEvaluationInterval})
+    )
+}
+
+async changeKpiEvaluationInterval(interval_sec) {
+    // todo: only do if different to current value
+    await this.state.pcrContract.methods.setOracleRequestInterval(interval_sec).send({from: this.state.account}).then(console.log)
+    .then(
+        // await this.getBalance()
     )
 }
 
@@ -374,6 +395,9 @@ async componentDidMount() {
                 ethBalance={this.state.ethBalance}
                 funding={this.addFunding}
                 withdraw={this.withdrawFunding}
+                changeKpiEvaluationInterval={this.changeKpiEvaluationInterval}
+                getKpiEvaluationInterval={this.getKpiEvaluationInterval}
+                currentKpiEvaluationInterval={this.state.kpiEvaluationInterval}
                 outflows={this.state.totalOutflows}
                 endDate={this.state.endDate}
                 />

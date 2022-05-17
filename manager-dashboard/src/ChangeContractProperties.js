@@ -8,7 +8,7 @@ class ChangeContractProperties extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            kpiEvaluationInterval: "",
+            newKpiEvaluationInterval: "",
             payoutAmount: "",
             kpiDisputeWindow: "",
         }
@@ -27,18 +27,18 @@ class ChangeContractProperties extends Component {
 
     handleSubmit(evt) {
         evt.preventDefault();
-        // this.props.changeKpiEvaluationInterval(this.state.funding);
-        this.setState({kpiEvaluationInterval: ""})
+        this.props.changeKpiEvaluationInterval(this.state.newKpiEvaluationInterval);
+        this.props.getKpiEvaluationInterval();
+        // this.setState({kpiEvaluationInterval: currentKpiEvaluationInterval})
     }
 
     render() {
         return (
             <div>
             <Form onSubmit={this.handleSubmit}>
-                <Form.Label htmlFor="funding">Add Funds: </Form.Label>
+                <Form.Label htmlFor="funding">Token contract properties: </Form.Label>
                 <InputGroup>
-		            <Form.Control type="text" name="kpiEvaluationInterval" placeholder="Interval in seconds" onChange={this.handleChange} value={this.state.kpiEvaluationInterval}></Form.Control>
-		            {/* <Form.Control type="text" name="funding" placeholder="Enter a USDC amount..." onChange={this.handleChange} value={this.state.funding}></Form.Control> */}
+		            <Form.Control type="text" name="newKpiEvaluationInterval" placeholder={this.props.currentKpiEvaluationInterval} onChange={this.handleChange} value={this.state.newKpiEvaluationInterval}></Form.Control>
 		            <Button type="submit" className="addWithdrawButton" size="sm" >Submit</Button>
                 </InputGroup>
             </Form>

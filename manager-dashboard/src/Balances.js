@@ -65,7 +65,9 @@ class Balances extends Component {
 
                 <Card className="changeContractProperties">
                     <ChangeContractProperties 
-	                // withdraw={this.withdrawFunding}
+                    changeKpiEvaluationInterval={this.props.changeKpiEvaluationInterval}
+                    getKpiEvaluationInterval={this.props.getKpiEvaluationInterval}
+                    currentKpiEvaluationInterval={this.props.currentKpiEvaluationInterval}
                     />
                 </Card>
             </Col>
