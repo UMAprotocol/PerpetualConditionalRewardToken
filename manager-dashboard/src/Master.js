@@ -44,7 +44,7 @@ class Master extends Component {
             endDate: '',
             kpiEvaluationInterval: '?',
             kpiDisputeWindow: '?',
-            payoutAmount: '?',
+            payoutAmount_ether: '?',
             pcrContract_address: '0x3056203DF5002FcD633403279f29E8eb72D492D1'
         }
 
@@ -58,6 +58,8 @@ class Master extends Component {
         this.getKpiEvaluationInterval = this.getKpiEvaluationInterval.bind(this);
         this.changeKpiDisputeWindow = this.changeKpiDisputeWindow.bind(this);
         this.getKpiDisputeWindow = this.getKpiDisputeWindow.bind(this);
+        this.changePayoutAmount_ether = this.changePayoutAmount_ether.bind(this);
+        this.getPayoutAmount_ether = this.getPayoutAmount_ether.bind(this);
         this.createStream = this.createStream.bind(this);
         this.toggleCreateModal = this.toggleCreateModal.bind(this);
         this.closeCreateModal = this.closeCreateModal.bind(this);
@@ -99,6 +101,7 @@ class Master extends Component {
         })
         this.getKpiEvaluationInterval();
         this.getKpiDisputeWindow();
+        this.getPayoutAmount_ether();
 
     await this.getAccount();
 
@@ -224,6 +227,18 @@ async getKpiDisputeWindow() {
 
 async changeKpiDisputeWindow(interval_sec) {
     await this.state.pcrContract.methods.setOracleRequestLiveness(interval_sec).send({from: this.state.account}).then(console.log)
+}
+
+async getPayoutAmount_ether() {
+    const payoutAmount_wei = await this.state.pcrContract.methods._payoutAmountOnOracleConfirmation().call()
+    let payoutAmount_ether = new BigNumber(payoutAmount_wei).shiftedBy(-18).toString()
+    this.setState({payoutAmount_ether: payoutAmount_ether})
+    return payoutAmount_ether
+}
+
+async changePayoutAmount_ether(amount_ether) {
+    let amount_wei = new BigNumber(amount_ether).shiftedBy(18).toString()
+    await this.state.pcrContract.methods.setPayoutAmount(amount_wei).send({from: this.state.account}).then(console.log)
 }
 
 async createStream(stream) {
@@ -414,9 +429,9 @@ async componentDidMount() {
                 currentKpiDisputeWindow={this.state.kpiDisputeWindow}
                 changeKpiDisputeWindow={this.changeKpiDisputeWindow}
                 getKpiDisputeWindow={this.getKpiDisputeWindow}
-                currentPayoutAmount={this.state.payoutAmount}
-                changePayoutAmount={this.changePayoutAmount}
-                getPayoutAmount={this.getPayoutAmount}
+                currentPayoutAmount={this.state.payoutAmount_ether}
+                changePayoutAmount={this.changePayoutAmount_ether}
+                getPayoutAmount={this.getPayoutAmount_ether}
                 outflows={this.state.totalOutflows}
                 endDate={this.state.endDate}
                 />
