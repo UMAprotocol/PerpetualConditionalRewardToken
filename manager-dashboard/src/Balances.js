@@ -46,6 +46,7 @@ class Balances extends Component {
                     fUSDCxBal={this.props.fUSDCxBal}
                     ethBalance={this.props.ethBalance}
                     outflows={this.props.outflows}
+                    updateBalanceFunction={this.props.updateBalanceFunction}
 
                     />
                 </Card>

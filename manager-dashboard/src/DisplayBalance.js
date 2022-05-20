@@ -18,12 +18,12 @@ class DisplayBalance extends Component {
             this.setState({balance: this.props.fUSDCxBal})
             this.setState({ethBalance: this.props.ethBalance})
             setInterval(() => {
+                this.props.updateBalanceFunction();
                 this.setState({
-                    balance: (Number(this.state.balance)).toFixed(2),
+                    balance: (Number(this.props.fUSDCxBal)).toFixed(2),
                     ethBalance: Number(this.props.ethBalance).toFixed(5),
-                // }, () => {console.log(this.state.ethBalance);})
             })}, 
-            100)
+            1000)
         }
     }
 

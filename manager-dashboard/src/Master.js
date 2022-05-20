@@ -180,7 +180,6 @@ async getBalance() {
     const adjustedfUSDCx = Number(new BigNumber(fUSDCxBal).shiftedBy(-18)).toFixed(5);
     const ethBal = await this.state.web3.eth.getBalance(this.state.pcrContract_address)
     const adjustedEth = Number(new BigNumber(ethBal).shiftedBy(-18)).toFixed(5);
-    console.log(adjustedEth)
 
     this.setState({
         fUSDCxBal: adjustedfUSDCx,  // Passed into DisplayBalance as a property
@@ -190,13 +189,10 @@ async getBalance() {
 }
 
 async addFunding(amount) {
-    await this.state.fUSDC.methods.approve(fUSDCx_address, amount).send({from: this.state.account}).then(console.log)
+    await this.state.fUSDCx.methods.transfer(this.state.pcrContract_address, amount).send({from: this.state.account}).then(console.log)
     .then(
-        await this.state.fUSDCx.methods.upgrade(amount).send({from: this.state.account}).then(console.log)
-        .then(
-            await this.getBalance()
-        )
-    )
+        await this.getBalance()  // TODO: why does this happen before the transfer is complete?
+    ).then(console.log("Called get balance"))
 }
 
 async withdrawFunding(amount) {
@@ -434,6 +430,7 @@ async componentDidMount() {
                 getPayoutAmount={this.getPayoutAmount_ether}
                 outflows={this.state.totalOutflows}
                 endDate={this.state.endDate}
+                updateBalanceFunction={this.getBalance}
                 />
             </Container>
             </Row>
