@@ -43,6 +43,8 @@ class Master extends Component {
             totalOutflows: 0, 
             endDate: '',
             kpiEvaluationInterval: '?',
+            kpiDisputeWindow: '?',
+            payoutAmount: '?',
             pcrContract_address: '0x3056203DF5002FcD633403279f29E8eb72D492D1'
         }
 
@@ -54,6 +56,8 @@ class Master extends Component {
         this.withdrawFunding = this.withdrawFunding.bind(this);
         this.changeKpiEvaluationInterval = this.changeKpiEvaluationInterval.bind(this);
         this.getKpiEvaluationInterval = this.getKpiEvaluationInterval.bind(this);
+        this.changeKpiDisputeWindow = this.changeKpiDisputeWindow.bind(this);
+        this.getKpiDisputeWindow = this.getKpiDisputeWindow.bind(this);
         this.createStream = this.createStream.bind(this);
         this.toggleCreateModal = this.toggleCreateModal.bind(this);
         this.closeCreateModal = this.closeCreateModal.bind(this);
@@ -94,6 +98,7 @@ class Master extends Component {
             pcrContract: pcrContract,
         })
         this.getKpiEvaluationInterval();
+        this.getKpiDisputeWindow();
 
     await this.getAccount();
 
@@ -199,18 +204,28 @@ async withdrawFunding(amount) {
 }
 
 async getKpiEvaluationInterval() {
-    const kpiEvaluationInterval = await this.state.pcrContract.methods._oracleRequestInterval_sec().call().then(console.log)
-    .then(
-        this.setState({kpiEvaluationInterval: kpiEvaluationInterval})
-    )
+    console.log("Previous kpi evaluation interval: " + this.state.kpiEvaluationInterval)
+    const kpiEvaluationInterval = await this.state.pcrContract.methods._oracleRequestInterval_sec().call()
+    this.setState({kpiEvaluationInterval: kpiEvaluationInterval})
+    console.log("Kpi evaluation interval currently: " + this.state.kpiEvaluationInterval)
+    return kpiEvaluationInterval
 }
 
 async changeKpiEvaluationInterval(interval_sec) {
-    // todo: only do if different to current value
     await this.state.pcrContract.methods.setOracleRequestInterval(interval_sec).send({from: this.state.account}).then(console.log)
     .then(
         // await this.getBalance()
     )
+}
+
+async getKpiDisputeWindow() {
+    const kpiDisputeWindow = await this.state.pcrContract.methods._oracleRequestLiveness_sec().call()
+    this.setState({kpiDisputeWindow: kpiDisputeWindow})
+    return kpiDisputeWindow
+}
+
+async changeKpiDisputeWindow(interval_sec) {
+    await this.state.pcrContract.methods.setOracleRequestLiveness(interval_sec).send({from: this.state.account}).then(console.log)
 }
 
 async createStream(stream) {
@@ -395,9 +410,15 @@ async componentDidMount() {
                 ethBalance={this.state.ethBalance}
                 funding={this.addFunding}
                 withdraw={this.withdrawFunding}
+                currentKpiEvaluationInterval={this.state.kpiEvaluationInterval}
                 changeKpiEvaluationInterval={this.changeKpiEvaluationInterval}
                 getKpiEvaluationInterval={this.getKpiEvaluationInterval}
-                currentKpiEvaluationInterval={this.state.kpiEvaluationInterval}
+                currentKpiDisputeWindow={this.state.kpiDisputeWindow}
+                changeKpiDisputeWindow={this.changeKpiDisputeWindow}
+                getKpiDisputeWindow={this.getKpiDisputeWindow}
+                currentPayoutAmount={this.state.payoutAmount}
+                changePayoutAmount={this.changePayoutAmount}
+                getPayoutAmount={this.getPayoutAmount}
                 outflows={this.state.totalOutflows}
                 endDate={this.state.endDate}
                 />

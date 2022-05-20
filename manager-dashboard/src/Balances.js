@@ -68,6 +68,12 @@ class Balances extends Component {
                     changeKpiEvaluationInterval={this.props.changeKpiEvaluationInterval}
                     getKpiEvaluationInterval={this.props.getKpiEvaluationInterval}
                     currentKpiEvaluationInterval={this.props.currentKpiEvaluationInterval}
+                    changeKpiDisputeWindow={this.props.changeKpiDisputeWindow}
+                    getKpiDisputeWindow={this.props.getKpiDisputeWindow}
+                    currentKpiDisputeWindow={this.props.currentKpiDisputeWindow}
+                    changePayoutAmount={this.props.changePayoutAmount}
+                    getPayoutAmount={this.props.getPayoutAmount}
+                    currentPayoutAmount={this.props.currentPayoutAmount}
                     />
                 </Card>
             </Col>
