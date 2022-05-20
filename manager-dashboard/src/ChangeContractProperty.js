@@ -13,6 +13,13 @@ class ChangeContractProperty extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+
+        // Check contract property for when it's updated asynchronously
+        // TODO: don't start this before web3 is setup
+        setInterval(() => {
+            this.props.getPropertyFunction();
+            this.setState({currentPropertyValue: this.props.currentPropertyValue});
+        }, 1000)
     }
 
     //methods to handle input
@@ -28,6 +35,7 @@ class ChangeContractProperty extends Component {
         evt.preventDefault();  // Prevent browser refresh
         console.log("Requested property value: " + this.state.newPropertyValue)
         this.props.updatePropertyFunction(this.state.newPropertyValue)
+        this.setState({newPropertyValue: ""});  // Restore placeholder
     }
 
     render() {
