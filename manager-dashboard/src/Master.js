@@ -204,10 +204,8 @@ async withdrawFunding(amount) {
 }
 
 async getKpiEvaluationInterval() {
-    console.log("Previous kpi evaluation interval: " + this.state.kpiEvaluationInterval)
     const kpiEvaluationInterval = await this.state.pcrContract.methods._oracleRequestInterval_sec().call()
     this.setState({kpiEvaluationInterval: kpiEvaluationInterval})
-    console.log("Kpi evaluation interval currently: " + this.state.kpiEvaluationInterval)
     return kpiEvaluationInterval
 }
 
@@ -436,12 +434,6 @@ async componentDidMount() {
                 />
                
            </Container>
-
-            <Container>
-            {this.state.creatingStream? this.showCreateModal(): console.log('not creating an employee')}
-            {this.state.editingStream? this.showEditModal(this.state.editingAddress): console.log('not editing')}
-
-            </Container>
 
             </div>
         )
