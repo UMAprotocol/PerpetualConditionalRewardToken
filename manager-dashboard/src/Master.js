@@ -3,11 +3,13 @@ import Web3 from "web3";
 import detectEthereumProvider from '@metamask/detect-provider';
 import BigNumber from "bignumber.js";
 import SuperfluidSDK from "@superfluid-finance/js-sdk";
+import { pcrTokenFactory_address } from "./config";
+import { PCRTokenFactoryabi } from "./abis/PcrTokenFactoryabi";
 import { fUSDC_address } from "./config";
 import { fUSDCx_address } from "./config";
 import { fUSDCxabi } from "./abis/fUSDCxabi";
-import {ERC20abi} from "./abis/ERC20abi";
-import { perpetualConditionalRewardTokenabi } from "./abis/PerpetualConditionalRewardTokenabi";
+import { ERC20abi } from "./abis/ERC20abi";
+import { perpetualConditionalRewardsTokenabi } from "./abis/PerpetualConditionalRewardsTokenabi";
 import ConnectWallet from "./ConnectWallet";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -21,6 +23,7 @@ import { calculateEndDate } from "./config";
 import StreamList from "./StreamList";
 import CreateStream from "./CreateStream";
 import EditStream from "./EditStream";
+import CreatePCRToken from "./CreatePCRToken";
 import "./Master.css"
 
 
@@ -45,12 +48,16 @@ class Master extends Component {
             kpiEvaluationInterval: '?',
             kpiDisputeWindow: '?',
             payoutAmount_ether: '?',
-            pcrContract_address: '0x3056203DF5002FcD633403279f29E8eb72D492D1'
+            pcrContract: {},
+            pcrContract_address: '',  // 0x3056203DF5002FcD633403279f29E8eb72D492D1
+            pcrTokenFactory: {},
         }
 
         this.initWeb3 = this.initWeb3.bind(this);
         this.getAccount = this.getAccount.bind(this);
         this.isConnected = this.isConnected.bind(this);
+        this.callPCRTokenFactory = this.callPCRTokenFactory.bind(this);
+        this.getCurrentPCRToken = this.getCurrentPCRToken.bind(this);
         this.getBalance = this.getBalance.bind(this);
         this.addFunding = this.addFunding.bind(this);
         this.withdrawFunding = this.withdrawFunding.bind(this);
@@ -89,7 +96,7 @@ class Master extends Component {
         
         const fUSDC = new web3.eth.Contract(ERC20abi, fUSDC_address);
         const fUSDCx = new web3.eth.Contract(fUSDCxabi, fUSDCx_address);
-        const pcrContract = new web3.eth.Contract(perpetualConditionalRewardTokenabi, this.state.pcrContract_address);
+        const pcrTokenFactory = new web3.eth.Contract(PCRTokenFactoryabi, pcrTokenFactory_address);
         
         this.setState({
             web3: web3,
@@ -97,7 +104,7 @@ class Master extends Component {
             sf: sf,
             fUSDC: fUSDC,
             fUSDCx: fUSDCx,
-            pcrContract: pcrContract,
+            pcrTokenFactory: pcrTokenFactory,
         })
         this.getKpiEvaluationInterval();
         this.getKpiDisputeWindow();
@@ -174,6 +181,22 @@ isConnected() {
         this.setState({connected: true})
     }
 }
+
+async callPCRTokenFactory() {
+    await this.state.pcrTokenFactory.methods.createPcrToken().send({from: this.state.account}).then(console.log)
+}
+
+async getCurrentPCRToken() {
+    const pcrContract_address = await this.state.pcrTokenFactory.methods.newPcrTokenAddress().call()  // is await even appropriate here?
+    console.log(pcrContract_address)
+    const pcrContract = new this.state.web3.eth.Contract(perpetualConditionalRewardsTokenabi, this.state.pcrContract_address);
+    console.log(pcrContract)
+    this.setState({
+        pcrContract_address: pcrContract_address,
+        pcrContract: pcrContract,
+    })
+}
+
 
 async getBalance() {
     const fUSDCxBal = await this.state.fUSDCx.methods.balanceOf(this.state.pcrContract_address).call({from: this.state.account});
@@ -397,6 +420,22 @@ async componentDidMount() {
                 <Col>
                 <h3 className="title">PCR Token Manager Dashboard</h3>
                 </Col>
+
+                <Col>
+                {!this.state.pcrContract_address || this.state.pcrContract_address === "" || this.state.pcrContract_address === undefined
+                || this.state.pcrContract_address === "0x0000000000000000000000000000000000000000" ?
+                // Create a new contract
+                // TODO: allow a preexisting contract to be chosen
+                <CreatePCRToken
+                callPCRTokenFactoryFunction={this.callPCRTokenFactory}
+                getCurrentPCRTokenFunction={this.getCurrentPCRToken}
+                />
+                :  // We already know which contract we're using
+                // TODO: link to inspection on block explorer
+                <Card className="connectWallet">{`${this.state.pcrContract_address.toString().substring(0, 4)}...${this.state.pcrContract_address.toString().substring(38)}`}</Card>
+                }
+                </Col>
+
                 <Col>
                 {!this.state.connected || this.state.account === "" || this.state.account === undefined?
                 <ConnectWallet
