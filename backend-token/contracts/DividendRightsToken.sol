@@ -109,6 +109,25 @@ contract DividendRightsToken is
     
         //transferOwnership(_owner);
 
+        // Manually initialize class members that don't get initialized in cloning
+        actuallyUseOracle = true;
+        actuallyUseIda = true;
+
+        _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
+        _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
+
+        _oracleRequestTimestamp;
+        _payoutAmountOnOracleConfirmation = 1 ether;
+        _oracleRequestLiveness_sec = 10;
+        _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
+
+        _oracleSettlementOverdue = false;
+        _oracleRequestOverdue = false;
+        _oracleRequestDueAt_timestamp = type(uint256).max;
+        _oracleSettlementDueAt_timestamp = type(uint256).max;
+
+
+
         if (actuallyUseOracle) {
         // Kovan UMA Optimistic Oracle addresses
         // From https://docs.umaproject.org/dev-ref/addresses

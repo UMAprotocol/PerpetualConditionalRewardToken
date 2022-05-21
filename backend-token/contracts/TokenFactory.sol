@@ -18,7 +18,7 @@ contract FactoryClone {
         // TODO: use deterministic clone address creation
         address clone = Clones.clone(pcrTokenImplementation);
         cloneAddress = clone;
-        //DividendRightsToken(payable(clone)).initialize();//"PCRclone", "PCRx1", msg.sender);
+        DividendRightsToken(payable(clone)).initialize();//"PCRclone", "PCRx1", msg.sender);
         return clone;
     }
 }
