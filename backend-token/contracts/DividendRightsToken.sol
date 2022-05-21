@@ -14,6 +14,9 @@ import {
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// Initializable protects initialization method from being called multiple times.
+// Initialization is used in place of constructor - required for the contract to be cloneable.
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 
 import { OptimisticRequester } from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
@@ -32,11 +35,16 @@ import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
  * 2. Use SuperApp framework to update `isSubscribing` when new subscription is approved by token holder.
  */
 contract DividendRightsToken is
-    Ownable,
+    // Ownable,
     ERC20,
+    Initializable,
     KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Keepers
     OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
+    // These ERC20 parameters are redeclared in child class because they cannot be called in the constructor with clones.
+    string private _name;
+    string private _symbol;
+
     bool private actuallyUseOracle = true;
     bool private actuallyUseIda = true;
 
@@ -78,12 +86,29 @@ contract DividendRightsToken is
         string memory name,
         string memory symbol
         )
+        ERC20(name, symbol)  // This is required to inherit from ERC20 - does it make sense for the base implementation?
+    {
+        // Clones won't have the constructor called so will be unaffected.
+        // Prevent the implementation contract from being used (its sole purpose is to be cloned).
+        //_disableInitializers();
+    }
+
+    function initialize(
+        // string memory name,
+        // string memory symbol,
+        // address _owner
         /*
         ISuperToken cashToken,
         ISuperfluid host,
         IInstantDistributionAgreementV1 ida)*/
-        ERC20(name, symbol) 
+        ) public //initializer
     {
+        // Manually initialize ERC20 properties that don't get called from the constructor on clones
+        _name = "name";
+        _symbol = "symbol";
+    
+        //transferOwnership(_owner);
+
         if (actuallyUseOracle) {
         // Kovan UMA Optimistic Oracle addresses
         // From https://docs.umaproject.org/dev-ref/addresses
@@ -130,7 +155,6 @@ contract DividendRightsToken is
         issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
         }
 
-        transferOwnership(msg.sender);
         _decimals = 0;
     }
 
@@ -154,7 +178,7 @@ contract DividendRightsToken is
     }
 
     /// @dev Issue new `amount` of gifts to `beneficiary`
-    function issue(address beneficiary, uint256 amount) public onlyOwner {
+    function issue(address beneficiary, uint256 amount) public /*onlyOwner*/ {
         uint256 currentAmount = balanceOf(beneficiary);
 
         // first try to do ERC20 mint of the token that will entitle holder to rewards
