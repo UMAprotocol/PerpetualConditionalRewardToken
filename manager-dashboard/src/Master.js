@@ -395,7 +395,7 @@ async componentDidMount() {
             <Container>
             <Row>
                 <Col>
-                <h3 className="title">Superfluid Dashboard</h3>
+                <h3 className="title">PCR Token Manager Dashboard</h3>
                 </Col>
                 <Col>
                 {!this.state.connected || this.state.account === "" || this.state.account === undefined?

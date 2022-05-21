@@ -1,7 +1,7 @@
 {
-    "name": "dividend-rights-token",
+    "name": "perpetual-conditional-rewards-token",
     "version": "1.0.0",
-    "description": "Dividend Rights Token - a superfluid superapp demo",
+    "description": "Perpetual Conditional Rewards Token",
     "main": "scripts/demo.js",
     "scripts": {
         "build": "truffle compile --all",

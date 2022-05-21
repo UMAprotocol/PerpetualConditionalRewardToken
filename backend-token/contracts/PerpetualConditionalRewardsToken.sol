@@ -29,12 +29,7 @@ import {OracleInterfaces} from "@uma/core/contracts/oracle/implementation/Consta
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 
-/**
- * The dividends rights token show cases two use cases
- * 1. Use Instant distribution agreement to distribute tokens to token holders.
- * 2. Use SuperApp framework to update `isSubscribing` when new subscription is approved by token holder.
- */
-contract DividendRightsToken is
+contract PerpetualConditionalRewardsToken is
     // Ownable,
     ERC20,
     Initializable,

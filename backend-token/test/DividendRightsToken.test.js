@@ -4,9 +4,9 @@ const deployFramework = require("@superfluid-finance/ethereum-contracts/scripts/
 const deployTestToken = require("@superfluid-finance/ethereum-contracts/scripts/deploy-test-token");
 const deploySuperToken = require("@superfluid-finance/ethereum-contracts/scripts/deploy-super-token");
 const SuperfluidSDK = require("@superfluid-finance/js-sdk");
-const DividendRightsToken = artifacts.require("DividendRightsToken");
+const PerpetualConditionalRewardsToken = artifacts.require("PerpetualConditionalRewardsToken");
 
-contract("DividendRightsToken", accounts => {
+contract("PerpetualConditionalRewardsToken", accounts => {
     const errorHandler = err => {
         if (err) throw err;
     };
@@ -61,10 +61,10 @@ contract("DividendRightsToken", accounts => {
         daix = sf.tokens.fDAIx;
 
         app = await web3tx(
-            DividendRightsToken.new,
-            "DividendRightsToken.new by alice"
+            PerpetualConditionalRewardsToken.new,
+            "PerpetualConditionalRewardsToken.new by alice"
         )(
-            "Dividend Rights Token",
+            "Perpetual Conditional Rewards Token",
             "DRT",
             daix.address,
             sf.host.address,

@@ -4,14 +4,14 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Dividend Rights Token - A Superfluid Demo</title>
+  <title>Perpetual Conditional Rewards Token</title>
   <meta name="description" content="The HTML5 Herald">
   <meta name="author" content="SitePoint">
 
 </head>
 
 <body>
-  <h3>(SquadGoals using PerpetualConditionalDistribution token, on Kovan testnet)</h3>
+  <h3>(SquadGoals using PerpetualConditionalRewardsToken, on Kovan testnet)</h3>
 
   <h1>Squad Goal: new OpenAMS release every month</h1>
   <label>Issuer address: </label> <span id="issuer"></span><br/> 
@@ -34,7 +34,7 @@
   <script>if (typeof module === "undefined") module = {};</script>
   <script src="https://cdn.jsdelivr.net/npm/@superfluid-finance/js-sdk@latest/src/abi.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@superfluid-finance/js-sdk@latest/src/getConfig.js"></script>
-  <script src="DividendRightsToken.abi.js"></script>
+  <script src="PerpetualConditionalRewardsToken.abi.js"></script>
   <script>
     let web3, daix, user, host, ida, drt;
     let liveness_sec = 30;
@@ -80,7 +80,7 @@
             idaAddress);
         console.debug("ida", ida._address);
         drt = new web3.eth.Contract(
-            DividendRightsToken_ABI,
+            PerpetualConditionalRewardsToken_ABI,
             DEPLOYED_DIVIDEND_RIGHTS_TOKENS[networkId]);
         console.debug("drt", drt._address);
         document.getElementById("issuer").innerHTML = await drt.methods.owner().call();

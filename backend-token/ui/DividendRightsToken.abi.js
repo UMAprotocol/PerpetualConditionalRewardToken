@@ -1,4 +1,4 @@
-DividendRightsToken_ABI = [
+PerpetualConditionalRewardsToken_ABI = [
 	{
 		"inputs": [
 			{
