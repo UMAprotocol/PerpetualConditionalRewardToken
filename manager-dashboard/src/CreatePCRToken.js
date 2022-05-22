@@ -10,23 +10,19 @@ class CreatePCRToken extends Component {
 
 
     async createPCRToken() {
+        var btn = document.getElementById("createPCRToken");
+        btn.innerHTML = "Creating token...";
         // Request a new token from the factory
         await this.props.callPCRTokenFactoryFunction()
         // Monitor its eventual creation
         setInterval(() => {
             this.props.getCurrentPCRTokenFunction();
-            // This state isn't being displayed here...
-        //     this.setState({
-        //         balance: (Number(this.props.fUSDCxBal)).toFixed(2),
-        //         ethBalance: Number(this.props.ethBalance).toFixed(5),
-        // })
         }, 1000)
     }
 
     render() {
             return (
-                <Button onClick={this.createPCRToken} className="createToken">Create a new PCR Token</Button>
-
+                <Button id="createPCRToken" onClick={this.createPCRToken} className="createToken">Create a new PCR Token</Button>
                 )
         }
     }
