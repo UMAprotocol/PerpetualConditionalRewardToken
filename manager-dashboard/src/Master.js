@@ -184,7 +184,8 @@ isConnected() {
 }
 
 async callPCRTokenFactory() {
-    await this.state.pcrTokenFactory.methods.createPcrToken().send({from: this.state.account}).then(console.log)
+    // Skip creating a new token during development
+    // await this.state.pcrTokenFactory.methods.createPcrToken().send({from: this.state.account}).then(console.log)
 }
 
 async getCurrentPCRToken() {
