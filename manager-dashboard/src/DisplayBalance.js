@@ -6,8 +6,8 @@ class DisplayBalance extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            balance: "0.00",
-            ethBalance: "0.0000",
+            balance: "?",
+            ethBalance: "?",
         }
 
         this.loadBalance = this.loadBalance.bind(this);
@@ -46,6 +46,9 @@ render() {
         <h2>${this.state.balance}</h2>
         <h5>ETH balance for gas</h5>
         <h2>{this.state.ethBalance} ETH</h2>
+        <h5>Rewards pool balance could hit zero on:</h5>
+        ?<br></br>
+
         </div>
     )       
     }

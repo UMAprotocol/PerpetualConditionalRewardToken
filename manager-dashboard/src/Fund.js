@@ -33,7 +33,7 @@ class Fund extends Component {
         return (
             <div>
             <Form onSubmit={this.handleSubmit}>
-                <Form.Label htmlFor="funding">Add Funds: </Form.Label>
+                <Form.Label htmlFor="funding">Add rewards pool funds: </Form.Label>
                 <InputGroup>
 		            <Form.Control type="text" name="funding" placeholder="Enter a DAIx amount..." onChange={this.handleChange} value={this.state.funding}></Form.Control>
 		            <Button type="submit" className="addWithdrawButton" size="sm" >Submit</Button>
