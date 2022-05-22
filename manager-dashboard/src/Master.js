@@ -261,9 +261,9 @@ async withdrawFunding(amount) {
 }
 
 async getKpiEvaluationInterval() {
+    if (this.state.pcrContract_address === "") return;
     const kpiEvaluationInterval = await this.state.pcrContract.methods._oracleRequestInterval_sec().call()
     this.setState({kpiEvaluationInterval: kpiEvaluationInterval})
-    return kpiEvaluationInterval
 }
 
 async changeKpiEvaluationInterval(interval_sec) {
@@ -274,9 +274,9 @@ async changeKpiEvaluationInterval(interval_sec) {
 }
 
 async getKpiDisputeWindow() {
+    if (this.state.pcrContract_address === "") return;
     const kpiDisputeWindow = await this.state.pcrContract.methods._oracleRequestLiveness_sec().call()
     this.setState({kpiDisputeWindow: kpiDisputeWindow})
-    return kpiDisputeWindow
 }
 
 async changeKpiDisputeWindow(interval_sec) {
@@ -284,10 +284,10 @@ async changeKpiDisputeWindow(interval_sec) {
 }
 
 async getPayoutAmount_ether() {
+    if (this.state.pcrContract_address === "") return;
     const payoutAmount_wei = await this.state.pcrContract.methods._payoutAmountOnOracleConfirmation().call()
     let payoutAmount_ether = new BigNumber(payoutAmount_wei).shiftedBy(-18).toString()
     this.setState({payoutAmount_ether: payoutAmount_ether})
-    return payoutAmount_ether
 }
 
 async changePayoutAmount_ether(amount_ether) {

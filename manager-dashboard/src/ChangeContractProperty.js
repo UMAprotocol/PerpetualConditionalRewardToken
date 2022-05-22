@@ -15,11 +15,13 @@ class ChangeContractProperty extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
 
         // Check contract property for when it's updated asynchronously
-        // TODO: don't start this before web3 is setup
-        setInterval(() => {
-            this.props.getPropertyFunction();
-            this.setState({currentPropertyValue: this.props.currentPropertyValue});
-        }, 1000)
+        // Delay the first check to allow web3 to load
+        setTimeout(
+            setInterval(() => {
+                this.props.getPropertyFunction();
+                this.setState({currentPropertyValue: this.props.currentPropertyValue});
+            }, 1000),
+        5000);
     }
 
     //methods to handle input
