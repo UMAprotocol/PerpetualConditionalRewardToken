@@ -16,8 +16,8 @@ async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
 
     // Prepare Task data to automate
     const tokenContract = new Contract(contractAddress, contractAbi, signer);
-    const upkeepSelector = counter.interface.getSighash(upkeepFunctionSignature);
-    const resolverData = counter.interface.getSighash(checkUpkeepFunctionSignature);
+    const upkeepSelector = tokenContract.interface.getSighash(upkeepFunctionSignature);
+    const resolverData = tokenContract.interface.getSighash(checkUpkeepFunctionSignature);
 
     // Create task
     console.log("Creating Gelato Task to automate contract upkeep...");

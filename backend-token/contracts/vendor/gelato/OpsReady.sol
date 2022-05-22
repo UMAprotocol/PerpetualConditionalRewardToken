@@ -11,8 +11,8 @@ interface IOps {
 }
 
 abstract contract OpsReady {
-    address public immutable ops;
-    address payable public immutable gelato;
+    address public /*immutable*/ ops;  // FIXME Make this immutable but also set by Clones in initializer
+    address payable public /*immutable*/ gelato;  // FIXME Make this immutable but also set by Clones in initializer
     address public constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     modifier onlyOps() {

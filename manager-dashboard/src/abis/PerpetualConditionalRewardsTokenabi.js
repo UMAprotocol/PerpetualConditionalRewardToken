@@ -105,12 +105,38 @@ export const perpetualConditionalRewardsTokenabi = [
 	},
 	{
 		"inputs": [],
+		"name": "ETH",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "INDEX_ID",
 		"outputs": [
 			{
 				"internalType": "uint32",
 				"name": "",
 				"type": "uint32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "_gelatoOpsAddress",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -406,6 +432,19 @@ export const perpetualConditionalRewardsTokenabi = [
 	},
 	{
 		"inputs": [],
+		"name": "gelato",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getOracleVerificationResult",
 		"outputs": [
 			{
@@ -499,6 +538,19 @@ export const perpetualConditionalRewardsTokenabi = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "ops",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "bytes",
@@ -507,6 +559,13 @@ export const perpetualConditionalRewardsTokenabi = [
 			}
 		],
 		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "performUpkeepAndPayGelatoFees",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -727,5 +786,9 @@ export const perpetualConditionalRewardsTokenabi = [
 		],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]

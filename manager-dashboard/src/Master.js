@@ -196,14 +196,13 @@ isConnected() {
 
 async callPCRTokenFactory() {
     // Skip creating a new token during development
-    // await this.state.pcrTokenFactory.methods.createPcrToken().send({from: this.state.account}).then(console.log)
+    await this.state.pcrTokenFactory.methods.createPcrToken().send({from: this.state.account}).then(console.log)
 }
 
 async getCurrentPCRToken() {
     const pcrContract_address = await this.state.pcrTokenFactory.methods.newPcrTokenAddress().call()  // is await even appropriate here?
-    console.log(pcrContract_address)
+    //const pcrContract_address = '0x247E4f5FeEB7CF61BDCB5043cBE87Afb98dC13e7'
     const pcrContract = new this.state.web3.eth.Contract(perpetualConditionalRewardsTokenabi, this.state.pcrContract_address);
-    console.log(pcrContract)
     this.setState({
         pcrContract_address: pcrContract_address,
         pcrContract: pcrContract,
@@ -226,7 +225,7 @@ addCurrentPCRTokenToMetamask() {
 }
 
 createUpkeepTask() {
-    const upkeepFunctionSignature = "performUpkeep_noCallData()";
+    const upkeepFunctionSignature = "performUpkeepAndPayGelatoFees()";
     const checkUpkeepFunctionSignature = "checkUpkeep_noCallData()";
     createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
         upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer)

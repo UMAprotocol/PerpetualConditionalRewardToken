@@ -28,12 +28,20 @@ import {OracleInterfaces} from "@uma/core/contracts/oracle/implementation/Consta
 // For automated triggering of "upkeep" by the Chain-Link Keepers
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
+// For automated triggering of "upkeep" by Gelato Tasks
+import {OpsReady} from "./vendor/gelato/OpsReady.sol";
+interface IOps {
+    function gelato() external view returns (address payable);
+    function getFeeDetails() external view returns (uint256, address);
+}
+
 
 contract PerpetualConditionalRewardsToken is
     // Ownable,
     ERC20,
-    Initializable,
-    KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Keepers
+    Initializable,  // For cloning
+    OpsReady,  // Allow monitoring and triggering of upkeep by Gelato Tasks
+    KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Chain-Link Keepers
     OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
     // These ERC20 parameters are redeclared in child class because they cannot be called in the constructor with clones.
@@ -56,7 +64,7 @@ contract PerpetualConditionalRewardsToken is
     uint256 public _oracleRequestLiveness_sec = 10;
     uint256 public _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
 
-
+    address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -82,6 +90,7 @@ contract PerpetualConditionalRewardsToken is
         string memory symbol
         )
         ERC20(name, symbol)  // This is required to inherit from ERC20 - does it make sense for the base implementation?
+        OpsReady(_gelatoOpsAddress)
     {
         // Clones won't have the constructor called so will be unaffected.
         // Prevent the implementation contract from being used (its sole purpose is to be cloned).
@@ -105,6 +114,9 @@ contract PerpetualConditionalRewardsToken is
         //transferOwnership(_owner);
 
         // Manually initialize class members that don't get initialized in cloning
+        ops = _gelatoOpsAddress;
+        gelato = IOps(ops).gelato();
+    
         actuallyUseOracle = true;
         actuallyUseIda = true;
 
@@ -171,6 +183,10 @@ contract PerpetualConditionalRewardsToken is
 
         _decimals = 0;
     }
+
+    // Allow contract to receive ETH balance to pay for its Gelato Task upkeep
+    // FIXME: Still cannot send ether to the contract via metamask
+    receive() external payable {}
 
     function setPayoutAmount(uint256 amount_eth) external
     {
@@ -382,6 +398,13 @@ contract PerpetualConditionalRewardsToken is
             _oracleRequestDueAt_timestamp = block.timestamp + _oracleRequestInterval_sec;
             _oracleRequestOverdue = false;  // Not strictly necessary
         }
+    }
+    function performUpkeepAndPayGelatoFees() public {
+        // Pay for Gelato fees
+        uint256 fee;
+        address feeToken;
+        (fee, feeToken) = IOps(ops).getFeeDetails();
+        _transfer(fee, feeToken);
     }
 
     // Gelato-compatible API (returning the function to call)
