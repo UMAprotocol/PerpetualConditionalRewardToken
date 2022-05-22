@@ -15,6 +15,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
+import Button from 'react-bootstrap/Button';
 import "./ConnectWallet.css";
 import "./CreateToken.css";
 import Balances from "./Balances";
@@ -58,6 +59,7 @@ class Master extends Component {
         this.getAccount = this.getAccount.bind(this);
         this.isConnected = this.isConnected.bind(this);
         this.callPCRTokenFactory = this.callPCRTokenFactory.bind(this);
+        this.addCurrentPCRTokenToMetamask = this.addCurrentPCRTokenToMetamask.bind(this);
         this.getCurrentPCRToken = this.getCurrentPCRToken.bind(this);
         this.getBalance = this.getBalance.bind(this);
         this.addFunding = this.addFunding.bind(this);
@@ -197,6 +199,20 @@ async getCurrentPCRToken() {
         pcrContract_address: pcrContract_address,
         pcrContract: pcrContract,
     })
+}
+
+addCurrentPCRTokenToMetamask() {
+  this.state.web3.givenProvider.sendAsync({
+    method: 'metamask_watchAsset',
+    params: {
+      type: 'ERC20',
+      options: {
+        address: this.state.pcrContract_address,
+        symbol: "PCRx",
+        decimals: 0,
+      }
+    }
+  })
 }
 
 
@@ -422,18 +438,20 @@ async componentDidMount() {
                 <Col>
                 <h3 className="title">PCR Token Manager Dashboard</h3>
                 </Col>
-
-                <Col>
                 {!this.state.pcrContract_address || this.state.pcrContract_address === "" || this.state.pcrContract_address === undefined
                 || this.state.pcrContract_address === "0x0000000000000000000000000000000000000000" ?
-                // Create a new contract
+                <Col>
+                {/* // Create a new contract
                 // TODO: allow a preexisting contract to be chosen
-                // TODO: don't allow this to be clicked until the wallet has been connected
+                // TODO: don't allow this to be clicked until the wallet has been connected */}
                 <CreatePCRToken
                 callPCRTokenFactoryFunction={this.callPCRTokenFactory}
                 getCurrentPCRTokenFunction={this.getCurrentPCRToken}
                 />
+                </Col>
                 :  // We already know which contract we're using
+                <>
+                <Col>
                 <Card className="createToken">
                     PCR Token address:&nbsp;
                     {`${this.state.pcrContract_address.toString().substring(0, 6)}...${this.state.pcrContract_address.toString().substring(38)}`}
@@ -441,8 +459,12 @@ async componentDidMount() {
                         (etherscan)
                     </a>
                 </Card>
-                }
                 </Col>
+                <Col>
+                    <Button onClick={this.addCurrentPCRTokenToMetamask} className="createToken">Add token to MetaMask</Button>
+                </Col>
+                </>
+                }
 
                 <Col>
                 {!this.state.connected || this.state.account === "" || this.state.account === undefined?
