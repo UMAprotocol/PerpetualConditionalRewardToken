@@ -33,7 +33,9 @@ async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
     });
     // FIXME: signing of the task name doesn't complete successfully because CORS header isn't added.
     console.log("Task created, taskId: " + res.taskId + " tx hash: " + res.transactionHash);
-    console.log("> https://app.gelato.network/task/" + res.taskId + "?chainId=" + chainId);
+    const upkeepTaskUrl = "https://app.gelato.network/task/" + res.taskId + "?chainId=" + chainId
+    console.log("> " + upkeepTaskUrl);
+    return upkeepTaskUrl;  // FIXME: logging only happens after task creation is finished, but a promise is returned immediately.
 }
 
 export default createPcrTokenUpkeepTask;

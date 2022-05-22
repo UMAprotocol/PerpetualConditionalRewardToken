@@ -55,6 +55,7 @@ class Master extends Component {
             pcrContract: {},
             pcrContract_address: '',  // 0x3056203DF5002FcD633403279f29E8eb72D492D1
             pcrTokenFactory: {},
+            upkeepTaskUrl: '',
         }
 
         this.initWeb3 = this.initWeb3.bind(this);
@@ -62,6 +63,7 @@ class Master extends Component {
         this.isConnected = this.isConnected.bind(this);
         this.callPCRTokenFactory = this.callPCRTokenFactory.bind(this);
         this.addCurrentPCRTokenToMetamask = this.addCurrentPCRTokenToMetamask.bind(this);
+        this.createUpkeepTask = this.createUpkeepTask.bind(this);
         this.getCurrentPCRToken = this.getCurrentPCRToken.bind(this);
         this.getBalance = this.getBalance.bind(this);
         this.addFunding = this.addFunding.bind(this);
@@ -195,13 +197,11 @@ isConnected() {
 }
 
 async callPCRTokenFactory() {
-    // Skip creating a new token during development
     await this.state.pcrTokenFactory.methods.createPcrToken().send({from: this.state.account}).then(console.log)
 }
 
 async getCurrentPCRToken() {
-    const pcrContract_address = await this.state.pcrTokenFactory.methods.newPcrTokenAddress().call()  // is await even appropriate here?
-    //const pcrContract_address = '0x247E4f5FeEB7CF61BDCB5043cBE87Afb98dC13e7'
+    const pcrContract_address = await this.state.pcrTokenFactory.methods.newPcrTokenAddress().call()
     const pcrContract = new this.state.web3.eth.Contract(perpetualConditionalRewardsTokenabi, this.state.pcrContract_address);
     this.setState({
         pcrContract_address: pcrContract_address,
@@ -227,8 +227,9 @@ addCurrentPCRTokenToMetamask() {
 createUpkeepTask() {
     const upkeepFunctionSignature = "performUpkeep_noCallData()"; //"performUpkeepAndPayGelatoFees()";
     const checkUpkeepFunctionSignature = "checkUpkeep_noCallData()";
-    createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
+    const upkeepTaskUrl = createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
         upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer)
+    this.setState({ upkeepTaskUrl: upkeepTaskUrl })
 }
 
 
@@ -476,6 +477,21 @@ async componentDidMount() {
                     </a>
                 </Card>
                 </Col>
+                {this.state.upkeepTaskUrl === "" ?
+                    <Col>
+                        <Button onClick={this.createUpkeepTask} className="createToken">Create Gelato automation task</Button>
+                    </Col>
+                    :
+                    <Col>
+                        <Card className="createToken">
+                            Gelato task created.
+                            &nbsp;<a href={this.state.upkeepTaskUrl} target="_blank">
+                                (view and fund)
+                            </a>
+                        </Card>
+                    </Col>
+                    }
+
                 <Col>
                     <Button onClick={this.addCurrentPCRTokenToMetamask} className="createToken">Add token to MetaMask</Button>
                 </Col>
