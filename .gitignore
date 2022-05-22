@@ -1,9 +1,10 @@
+/**/.deps
+/**/artifacts
 /*/data
 /*/node_modules
 /*/build
 /*/coverage.json
 /*/coverage
-/*/contracts/artifacts
 *.ignore.*
 .DS_Store
 
