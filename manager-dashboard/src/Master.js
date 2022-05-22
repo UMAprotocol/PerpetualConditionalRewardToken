@@ -221,15 +221,18 @@ addCurrentPCRTokenToMetamask() {
       }
     }
   })
-  this.createUpkeepTask();
 }
 
 createUpkeepTask() {
+    var btn = document.getElementById("createUpkeepTask");
+    btn.innerHTML = "Creating task...";
     const upkeepFunctionSignature = "performUpkeep_noCallData()"; //"performUpkeepAndPayGelatoFees()";
     const checkUpkeepFunctionSignature = "checkUpkeep_noCallData()";
     const upkeepTaskUrl = createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
         upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer)
+        .then(
     this.setState({ upkeepTaskUrl: upkeepTaskUrl })
+        )
 }
 
 
@@ -477,15 +480,18 @@ async componentDidMount() {
                     </a>
                 </Card>
                 </Col>
-                {this.state.upkeepTaskUrl === "" ?
+                {console.log(this.state.upkeepTaskUrl)}
+                {
+                this.state.upkeepTaskUrl === ""  | typeof this.state.upkeepTaskUrl === 'object' // Uninitialised/pending promise
+                    ?
                     <Col>
-                        <Button onClick={this.createUpkeepTask} className="createToken">Create Gelato automation task</Button>
+                        <Button id="createUpkeepTask" onClick={this.createUpkeepTask} className="createToken">Create Gelato automation task</Button>
                     </Col>
                     :
                     <Col>
                         <Card className="createToken">
-                            Gelato task created.
-                            &nbsp;<a href={this.state.upkeepTaskUrl} target="_blank">
+                            Gelato task requested/created.
+                            &nbsp;<a href="https://app.gelato.network/" target="_blank">
                                 (view and fund)
                             </a>
                         </Card>
