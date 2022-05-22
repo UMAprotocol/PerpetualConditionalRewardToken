@@ -6,7 +6,8 @@ class DisplayBalance extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            balance: "$0.00"
+            balance: "0.00",
+            ethBalance: "0.0000",
         }
 
         this.loadBalance = this.loadBalance.bind(this);
@@ -14,7 +15,7 @@ class DisplayBalance extends Component {
     }
 
     loadBalance() {
-        if (Number(this.props.fUSDCxBal) > 0) {
+        // if (Number(this.props.fUSDCxBal) > 0) {
             this.setState({balance: this.props.fUSDCxBal})
             this.setState({ethBalance: this.props.ethBalance})
             setInterval(() => {
@@ -24,7 +25,7 @@ class DisplayBalance extends Component {
                     ethBalance: Number(this.props.ethBalance).toFixed(5),
             })}, 
             1000)
-        }
+        // }
     }
 
     componentDidMount() {
@@ -40,7 +41,7 @@ render() {
 
     return (
         <div >
-        <h5>Rewards pool balance (USDCx)</h5>
+        <h5>Rewards pool balance (DAIx)</h5>
         {/* <h2>{this.props.outflows === 0? '$0.00' */}
         <h2>${this.state.balance}</h2>
         <h5>ETH balance for gas</h5>
