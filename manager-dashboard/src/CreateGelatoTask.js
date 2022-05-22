@@ -28,8 +28,8 @@ async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
         resolverAddress: tokenContract.address,
         resolverData: resolverData,
         resolverAbi: JSON.stringify(contractAbi),
-        useTreasury: false,
-        name: "PCR Token (fees paid by contract balance)",
+        useTreasury: true,
+        name: "PCR Token (fees paid by token manager)",
     });
     // FIXME: signing of the task name doesn't complete successfully because CORS header isn't added.
     console.log("Task created, taskId: " + res.taskId + " tx hash: " + res.transactionHash);

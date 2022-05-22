@@ -399,7 +399,10 @@ contract PerpetualConditionalRewardsToken is
             _oracleRequestOverdue = false;  // Not strictly necessary
         }
     }
+
     function performUpkeepAndPayGelatoFees() public {
+        performUpkeep_noCallData();
+
         // Pay for Gelato fees
         uint256 fee;
         address feeToken;
@@ -415,6 +418,7 @@ contract PerpetualConditionalRewardsToken is
 
         execPayload_gelato = abi.encodeWithSelector(
             this.performUpkeep_noCallData.selector
+            // this.performUpkeepAndPayGelatoFees.selector
         );
     }
 

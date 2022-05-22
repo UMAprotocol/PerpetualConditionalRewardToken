@@ -225,7 +225,7 @@ addCurrentPCRTokenToMetamask() {
 }
 
 createUpkeepTask() {
-    const upkeepFunctionSignature = "performUpkeepAndPayGelatoFees()";
+    const upkeepFunctionSignature = "performUpkeep_noCallData()"; //"performUpkeepAndPayGelatoFees()";
     const checkUpkeepFunctionSignature = "checkUpkeep_noCallData()";
     createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
         upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer)
