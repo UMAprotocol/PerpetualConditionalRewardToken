@@ -34,7 +34,7 @@ class Withdraw extends Component {
             <Form onSubmit={this.handleSubmit}>
                 <Form.Label htmlFor="withdraw">Withdraw Funds: </Form.Label>
                 <InputGroup>
-		            <Form.Control type="text" name="withdraw" placeholder="Enter a USDC amount..." onChange={this.handleChange} value={this.state.withdraw}></Form.Control>
+		            <Form.Control type="text" name="withdraw" placeholder="Enter a DAIx amount..." onChange={this.handleChange} value={this.state.withdraw}></Form.Control>
 		            <Button type="submit" className="addWithdrawButton" size="sm" >Submit</Button>
                 </InputGroup>
             </Form>

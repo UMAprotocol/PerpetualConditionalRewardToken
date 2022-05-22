@@ -6,8 +6,7 @@ import BigNumber from "bignumber.js";
 import SuperfluidSDK from "@superfluid-finance/js-sdk";
 import { pcrTokenFactory_address } from "./config";
 import { PCRTokenFactoryabi } from "./abis/PcrTokenFactoryabi";
-import { fUSDC_address } from "./config";
-import { fUSDCx_address } from "./config";
+import { rewardCurrency_address, fUSDC_address } from "./config";
 import { fUSDCxabi } from "./abis/fUSDCxabi";
 import { ERC20abi } from "./abis/ERC20abi";
 import { perpetualConditionalRewardsTokenabi } from "./abis/PerpetualConditionalRewardsTokenabi";
@@ -41,7 +40,7 @@ class Master extends Component {
             connected: true,
             account: '',
             fUSDC: {},
-            fUSDCx: {},
+            rewardCurrencyContract: {},
             fUSDCxBal: 0,
             creatingStream: false,
             editingStream: false,
@@ -102,7 +101,7 @@ class Master extends Component {
 
         
         const fUSDC = new web3.eth.Contract(ERC20abi, fUSDC_address);
-        const fUSDCx = new web3.eth.Contract(fUSDCxabi, fUSDCx_address);
+        const rewardCurrencyContract = new web3.eth.Contract(fUSDCxabi, rewardCurrency_address);
         const pcrTokenFactory = new web3.eth.Contract(PCRTokenFactoryabi, pcrTokenFactory_address);
         
         this.setState({
@@ -110,7 +109,7 @@ class Master extends Component {
             provider: provider,
             sf: sf,
             fUSDC: fUSDC,
-            fUSDCx: fUSDCx,
+            rewardCurrencyContract: rewardCurrencyContract,
             pcrTokenFactory: pcrTokenFactory,
         })
         this.getKpiEvaluationInterval();
@@ -237,7 +236,7 @@ createUpkeepTask() {
 
 
 async getBalance() {
-    const fUSDCxBal = await this.state.fUSDCx.methods.balanceOf(this.state.pcrContract_address).call({from: this.state.account});
+    const fUSDCxBal = await this.state.rewardCurrencyContract.methods.balanceOf(this.state.pcrContract_address).call({from: this.state.account});
     const adjustedfUSDCx = Number(new BigNumber(fUSDCxBal).shiftedBy(-18)).toFixed(5);
     const ethBal = await this.state.web3.eth.getBalance(this.state.pcrContract_address)
     const adjustedEth = Number(new BigNumber(ethBal).shiftedBy(-18)).toFixed(5);
@@ -250,14 +249,14 @@ async getBalance() {
 }
 
 async addFunding(amount) {
-    await this.state.fUSDCx.methods.transfer(this.state.pcrContract_address, amount).send({from: this.state.account}).then(console.log)
+    await this.state.rewardCurrencyContract.methods.transfer(this.state.pcrContract_address, amount).send({from: this.state.account}).then(console.log)
     .then(
         await this.getBalance()  // TODO: why does this happen before the transfer is complete?
     ).then(console.log("Called get balance"))
 }
 
 async withdrawFunding(amount) {
-    await this.state.fUSDCx.methods.downgrade(amount).send({from: this.state.account}).then(console.log)
+    await this.state.rewardCurrencyContract.methods.downgrade(amount).send({from: this.state.account}).then(console.log)
     .then(
         await this.getBalance()
     )
@@ -306,7 +305,7 @@ async createStream(stream) {
     const sf = this.state.sf;
     const tx = (sf.cfa._cfa.contract.methods
         .createFlow(
-            fUSDCx_address.toString(),
+            rewardCurrency_address.toString(),
             address.toString(),
             _flowRate.toString(),
             "0x"
@@ -325,7 +324,7 @@ async editStream(stream) {
     const sf = this.state.sf;
     const tx = (sf.cfa._cfa.contract.methods
         .updateFlow(
-            fUSDCx_address.toString(),
+            rewardCurrency_address.toString(),
             address.toString(),
             newFlowRate.toString(),
             "0x"
@@ -342,7 +341,7 @@ async deleteStream(address) {
     const sf = this.state.sf;
     const tx = (sf.cfa._cfa.contract.methods
         .deleteFlow(
-            fUSDCx_address.toString(),
+            rewardCurrency_address.toString(),
             this.state.account.toString(),
             address.toString(),
             "0x"
@@ -407,7 +406,7 @@ toggleEditModal(streamAddress) {
 
 async listOutFlows() {
     const flows = await this.state.sf.cfa.listFlows({
-        superToken: fUSDCx_address,
+        superToken: rewardCurrency_address,
         account: this.state.account
     })
     
@@ -480,7 +479,6 @@ async componentDidMount() {
                     </a>
                 </Card>
                 </Col>
-                {console.log(this.state.upkeepTaskUrl)}
                 {
                 this.state.upkeepTaskUrl === ""  | typeof this.state.upkeepTaskUrl === 'object' // Uninitialised/pending promise
                     ?
@@ -544,13 +542,13 @@ async componentDidMount() {
 
            <Container>
                
-               <StreamList 
+               {/* <StreamList 
                 toggleCreateModal={this.toggleCreateModal}
                 toggleEditModal={this.toggleEditModal}
                 streams={this.state.outFlows}
-                fUSDCx={this.state.fUSDCx}
+                rewardCurrencyContract={this.state.rewardCurrencyContract}
 
-                />
+                /> */}
                
            </Container>
 

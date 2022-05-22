@@ -28,7 +28,7 @@ class StreamList extends Component {
                     <Stream className="e"
                     address={streams.receiver}
                     flowRate={streams.flowRate}
-                    fUSDCx={this.props.fUSDCx}
+                    rewardCurrencyContract={this.props.rewardCurrencyContract}
                     handleEditing={this.props.toggleEditModal}
                     />}
                     </tbody>

@@ -57,12 +57,12 @@ class Balances extends Component {
 	                funding={this.addFunding}
                     />
                 </Card>
-
+{/* 
                 <Card className="withdrawFunds">
                     <Withdraw 
 	                withdraw={this.withdrawFunding}
                     />
-                </Card>
+                </Card> */}
 
                 <Card className="changeContractProperties">
                     <ChangeContractProperties 
