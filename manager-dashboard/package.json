@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@gelatonetwork/ops-sdk": "*",
     "@metamask/detect-provider": "^1.2.0",
     "@superfluid-finance/js-sdk": "^0.5.3",
     "@testing-library/jest-dom": "^5.11.4",

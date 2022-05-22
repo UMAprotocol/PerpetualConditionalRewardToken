@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import React, {Component} from "react";
 import Web3 from "web3";
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -26,6 +27,7 @@ import StreamList from "./StreamList";
 import CreateStream from "./CreateStream";
 import EditStream from "./EditStream";
 import CreatePCRToken from "./CreatePCRToken";
+import createPcrTokenUpkeepTask from "./CreateGelatoTask";
 import "./Master.css"
 
 
@@ -157,6 +159,13 @@ async getAccount() {
                 console.error(err);
             });
 
+            console.log("Getting signer!!--------------------")
+            const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+            console.log(signer)
+            this.setState({
+                signer: signer,
+            })
+
             //handles a change in connected accounts
             function handleAccountsChanged(accounts) {
                 if (accounts.length === 0) {
@@ -213,6 +222,11 @@ addCurrentPCRTokenToMetamask() {
       }
     }
   })
+  this.createUpkeepTask();
+}
+
+createUpkeepTask() {
+    createPcrTokenUpkeepTask(this.state.signer)
 }
 
 
