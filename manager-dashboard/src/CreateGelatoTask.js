@@ -12,8 +12,6 @@ async function createPcrTokenUpkeepTask(_signer) {
   }
 
   // Init GelatoOpsSDK
-//   const [signer] = await hre.ethers.getSigners();
-  signer._isSigner = true;  // Monkey patch because the attribute is missing
   const gelatoOps = new GelatoOpsSDK(chainId, signer);
 
   // Prepare Task data to automate
@@ -125,8 +123,8 @@ async function createPcrTokenUpkeepTask(_signer) {
 	}
 ];
   const counter = new Contract('0x4869041CcAe0BB3eb00e3cF144B4C0Cf52b613Cc', counterAbi, signer);
-  const selector = counter.interface.functions.increaseCount.sighash;
-  const resolverData = counter.interface.functions.checker.sighash;
+  const selector = counter.interface.getSighash("increaseCount()");
+  const resolverData = counter.interface.getSighash("checker()");
 
   // Create task
   console.log("Creating Task...");
@@ -140,8 +138,9 @@ async function createPcrTokenUpkeepTask(_signer) {
     useTreasury: false,
     name: "Automated Counter without treasury",
   });
-  console.log(`Task created, taskId: ${res.taskId} (tx hash: ${res.transactionHash})`);
-  console.log(`> https://app.gelato.network/task/${res.taskId}?chainId=${chainId}`);
+  // FIXME: signing of the task name doesn't complete successfully because CORS header isn't added.
+  console.log("Task created, taskId: " + res.taskId + " tx hash: " + res.transactionHash);
+  console.log("> https://app.gelato.network/task/" + res.taskId + "?chainId=" + chainId);
 }
 
 export default createPcrTokenUpkeepTask;
