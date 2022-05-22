@@ -226,7 +226,10 @@ addCurrentPCRTokenToMetamask() {
 }
 
 createUpkeepTask() {
-    createPcrTokenUpkeepTask(this.state.signer)
+    const upkeepFunctionSignature = "performUpkeep_noCallData()";
+    const checkUpkeepFunctionSignature = "checkUpkeep_noCallData()";
+    createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
+        upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer)
 }
 
 
