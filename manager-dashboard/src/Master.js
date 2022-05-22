@@ -16,6 +16,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import "./ConnectWallet.css";
+import "./CreateToken.css";
 import Balances from "./Balances";
 import { calculateFlowRate } from "./config";
 import { calculateStream } from "./config";
@@ -426,13 +427,19 @@ async componentDidMount() {
                 || this.state.pcrContract_address === "0x0000000000000000000000000000000000000000" ?
                 // Create a new contract
                 // TODO: allow a preexisting contract to be chosen
+                // TODO: don't allow this to be clicked until the wallet has been connected
                 <CreatePCRToken
                 callPCRTokenFactoryFunction={this.callPCRTokenFactory}
                 getCurrentPCRTokenFunction={this.getCurrentPCRToken}
                 />
                 :  // We already know which contract we're using
-                // TODO: link to inspection on block explorer
-                <Card className="connectWallet">{`${this.state.pcrContract_address.toString().substring(0, 4)}...${this.state.pcrContract_address.toString().substring(38)}`}</Card>
+                <Card className="createToken">
+                    PCR Token address:&nbsp;
+                    {`${this.state.pcrContract_address.toString().substring(0, 6)}...${this.state.pcrContract_address.toString().substring(38)}`}
+                    &nbsp;<a href={`https://rinkeby.etherscan.io/address/${this.state.pcrContract_address.toString()}`} target="_blank">
+                        (etherscan)
+                    </a>
+                </Card>
                 }
                 </Col>
 

@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Button from 'react-bootstrap/Button';
-import "./ConnectWallet.css";
+import "./CreateToken.css";
 
 class CreatePCRToken extends Component {
     constructor(props) {
@@ -25,7 +25,7 @@ class CreatePCRToken extends Component {
 
     render() {
             return (
-                <Button onClick={this.createPCRToken} className="connectWallet">Create a new PCR Token</Button>
+                <Button onClick={this.createPCRToken} className="createToken">Create a new PCR Token</Button>
 
                 )
         }
