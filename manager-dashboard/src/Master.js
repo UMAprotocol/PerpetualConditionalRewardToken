@@ -23,7 +23,7 @@ import { calculateFlowRate } from "./config";
 import { calculateStream } from "./config";
 import { calculateEndDate } from "./config";
 import StreamList from "./StreamList";
-import CreateStream from "./CreateStream";
+import CreateTokens from "./CreateTokens";
 import EditStream from "./EditStream";
 import CreatePCRToken from "./CreatePCRToken";
 import createPcrTokenUpkeepTask from "./CreateGelatoTask";
@@ -42,7 +42,7 @@ class Master extends Component {
             fUSDC: {},
             rewardCurrencyContract: {},
             fUSDCxBal: 0,
-            creatingStream: false,
+            configuringInitialRecipients: false,
             editingStream: false,
             editingAddress: "",
             outFlows: [],
@@ -52,7 +52,7 @@ class Master extends Component {
             kpiDisputeWindow: '?',
             payoutAmount_ether: '?',
             pcrContract: {},
-            pcrContract_address: '',  // 0x3056203DF5002FcD633403279f29E8eb72D492D1
+            pcrContract_address: '',
             pcrTokenFactory: {},
             upkeepTaskUrl: '',
         }
@@ -73,7 +73,7 @@ class Master extends Component {
         this.getKpiDisputeWindow = this.getKpiDisputeWindow.bind(this);
         this.changePayoutAmount_ether = this.changePayoutAmount_ether.bind(this);
         this.getPayoutAmount_ether = this.getPayoutAmount_ether.bind(this);
-        this.createStream = this.createStream.bind(this);
+        this.createTokens = this.createTokens.bind(this);
         this.toggleCreateModal = this.toggleCreateModal.bind(this);
         this.closeCreateModal = this.closeCreateModal.bind(this);
         this.showCreateModal = this.showCreateModal.bind(this);
@@ -297,23 +297,10 @@ async changePayoutAmount_ether(amount_ether) {
     await this.state.pcrContract.methods.setPayoutAmount(amount_wei).send({from: this.state.account}).then(console.log)
 }
 
-async createStream(stream) {
-    let amount = (new BigNumber(stream.amount).shiftedBy(18));;
-    let address = Web3.utils.toChecksumAddress(stream.address);
-    let _flowRate = calculateFlowRate(amount);
-
-    const sf = this.state.sf;
-    const tx = (sf.cfa._cfa.contract.methods
-        .createFlow(
-            rewardCurrency_address.toString(),
-            address.toString(),
-            _flowRate.toString(),
-            "0x"
-        )
-        .encodeABI())
-
-    await sf.host.contract.methods.callAgreement(
-        sf.cfa._cfa.address, tx, "0x").send({from: this.state.account, type: "0x2"})
+async createTokens(amount_ether) {
+    console.log("Create tokens called")
+    let amount = new BigNumber(amount_ether).shiftedBy(18).toString();
+    await this.state.pcrContract.methods.issue(this.state.account, amount).send({from: this.state.account})
     .then(console.log)
 }
 
@@ -355,17 +342,19 @@ async deleteStream(address) {
 
 
 toggleCreateModal() {
-    this.setState({creatingStream: true})
+    console.log("Modal toggled")
+    this.setState({addingRecipients: true})
 }
 
 closeCreateModal() {
-    this.setState({creatingStream: false})
+    console.log("Modal closed")
+    this.setState({addingRecipients: false})
 }
 
 showCreateModal() {
     return (
-        <CreateStream
-        createStream={this.createStream}
+        <CreateTokens
+        createTokens={this.createTokens}
         closeCreateModal={this.closeCreateModal}
         />
     )
@@ -542,15 +531,20 @@ async componentDidMount() {
 
            <Container>
                
-               {/* <StreamList 
+               { <StreamList 
                 toggleCreateModal={this.toggleCreateModal}
                 toggleEditModal={this.toggleEditModal}
                 streams={this.state.outFlows}
                 rewardCurrencyContract={this.state.rewardCurrencyContract}
 
-                /> */}
+                /> }
                
            </Container>
+            <Container>
+            {this.state.addingRecipients? this.showCreateModal(): ()=>{}}
+            {this.state.editingStream? this.showEditModal(this.state.editingAddress): ()=>{}}
+
+            </Container>
 
             </div>
         )

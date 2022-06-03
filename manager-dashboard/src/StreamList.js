@@ -47,9 +47,9 @@ class StreamList extends Component {
                             <h3>Stream List</h3>
                         </Card>
                         <Button className="addStream" onClick={this.toggleCreateModal}>
-                            Add Stream
+                            Configure initial recipients
                         </Button>
-
+{/* 
                         <Table className="streams"responsive bordered hover>
                         <thead>
                             <tr>
@@ -59,7 +59,7 @@ class StreamList extends Component {
                             </tr>
                         </thead>
                         {this.renderStreams()}
-                        </Table> 
+                        </Table>  */}
                     </Row>
                 </Container>
             </div>
