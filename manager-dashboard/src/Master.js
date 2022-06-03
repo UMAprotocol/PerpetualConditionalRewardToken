@@ -297,9 +297,8 @@ async changePayoutAmount_ether(amount_ether) {
     await this.state.pcrContract.methods.setPayoutAmount(amount_wei).send({from: this.state.account}).then(console.log)
 }
 
-async createTokens(amount_ether) {
+async createTokens(amount) {
     console.log("Create tokens called")
-    let amount = new BigNumber(amount_ether).shiftedBy(18).toString();
     await this.state.pcrContract.methods.issue(this.state.account, amount).send({from: this.state.account})
     .then(console.log)
 }
