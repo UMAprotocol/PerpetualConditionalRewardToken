@@ -14,11 +14,11 @@ contract PerpetualConditionalRewardsTokenFactory {
         pcrTokenImplementation = address(new PerpetualConditionalRewardsToken("PCRbase", "PCRx"));
     }
 
-    function createPcrToken() external returns (address) {
+    function createPcrToken(bool useIda, bool useOracle) external returns (address) {
         // TODO: use deterministic clone address creation
         address clone = Clones.clone(pcrTokenImplementation);
         newPcrTokenAddress = clone;
-        PerpetualConditionalRewardsToken(payable(clone)).initialize();//"PCRclone", "PCRx1", msg.sender);
+        PerpetualConditionalRewardsToken(payable(clone)).initialize(useIda, useOracle);//"PCRclone", "PCRx1", msg.sender);
         return clone;  // Why does this not return?
     }
 }

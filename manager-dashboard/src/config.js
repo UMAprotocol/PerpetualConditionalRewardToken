@@ -13,7 +13,7 @@ export const fUSDC_address = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
 export const fUSDCx_address = "0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8";
 export const fDAIx_address = "0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2";
 export const rewardCurrency_address = fDAIx_address;
-export const pcrTokenFactory_address = "0x72E425Ae3C02aFA81769c5AE084Ec7Cbf63138C6";
+export const pcrTokenFactory_address = "0xE75E44B839EB579A1FA4f7E899d197C7EEc4065a";
 
 export function calculateFlowRate(amount) {
     let fr = amount / (86400 * 30)
