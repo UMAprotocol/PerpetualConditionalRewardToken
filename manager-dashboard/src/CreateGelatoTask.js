@@ -5,7 +5,8 @@ import { ethers, Contract } from "ethers";
 async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
         upkeepFunctionSignature, checkUpkeepFunctionSignature, signer) {
     // const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
-    const chainId = 4;  // rinkeby
+    // const chainId = 4;  // rinkeby
+    const chainId = 137;  // rinkeby
     if (!isGelatoOpsSupported(chainId)) {
         console.log(`Gelato Ops network not supported (${chainId})`);
         return;
