@@ -228,7 +228,7 @@ createUpkeepTask() {
     var btn = document.getElementById("createUpkeepTask");
     btn.innerHTML = "Creating task...";
     const upkeepFunctionSignature = gelatoFeesPaidByContract ? "performUpkeepAndPayGelatoFees()" : "performUpkeep_noCallData()";
-    const checkUpkeepFunctionSignature = "checkUpkeep_noCallData()";
+    const checkUpkeepFunctionSignature = gelatoFeesPaidByContract ? "checkUpkeep_payGelatoFees()" : "checkUpkeep_noCallData()";
     const upkeepTaskUrl = createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
         upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer, gelatoFeesPaidByContract)
         .then(

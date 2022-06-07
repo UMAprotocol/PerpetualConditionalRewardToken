@@ -375,6 +375,24 @@ export const perpetualConditionalRewardsTokenabi = [
 	},
 	{
 		"inputs": [],
+		"name": "checkUpkeep_payGelatoFees",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "execPayload_gelato",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "decimals",
 		"outputs": [
 			{

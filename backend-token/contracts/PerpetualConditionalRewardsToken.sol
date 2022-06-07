@@ -428,7 +428,17 @@ contract PerpetualConditionalRewardsToken is
 
         execPayload_gelato = abi.encodeWithSelector(
             this.performUpkeep_noCallData.selector
-            // this.performUpkeepAndPayGelatoFees.selector
+        );
+    }
+
+    // Gelato-compatible API (returning the function to call)
+    function checkUpkeep_payGelatoFees() public view 
+        returns (bool upkeepNeeded, bytes memory execPayload_gelato) {
+        (bool oracleSettlementOverdue, bool oracleRequestOverdue) = checkForOverdueActions();
+        upkeepNeeded = oracleSettlementOverdue || oracleRequestOverdue;
+
+        execPayload_gelato = abi.encodeWithSelector(
+            this.performUpkeepAndPayGelatoFees.selector
         );
     }
 
