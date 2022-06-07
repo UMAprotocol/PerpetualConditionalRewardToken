@@ -66,6 +66,7 @@ class Master extends Component {
         this.createUpkeepTask = this.createUpkeepTask.bind(this);
         this.getCurrentPCRToken = this.getCurrentPCRToken.bind(this);
         this.getBalance = this.getBalance.bind(this);
+        this.addGasBalanceFunding = this.addGasBalanceFunding.bind(this);
         this.addFunding = this.addFunding.bind(this);
         this.withdrawFunding = this.withdrawFunding.bind(this);
         this.changeKpiEvaluationInterval = this.changeKpiEvaluationInterval.bind(this);
@@ -247,6 +248,14 @@ async getBalance() {
         balance: adjustedfUSDCx,  // Added, perhaps piggybacking on balance inappropriately?
         ethBalance: adjustedEth,
     })
+}
+
+async addGasBalanceFunding(amount) {
+    await this.state.web3.eth.sendTransaction({to: this.state.pcrContract_address, from: this.state.account, value: amount})
+    .then(console.log)
+    .then(
+        await this.getBalance()  // TODO: why does this happen before the transfer is complete?
+    ).then(console.log("Called get balance"))
 }
 
 async addFunding(amount) {
@@ -512,6 +521,7 @@ async componentDidMount() {
                 <Balances
                 fUSDCxBal={this.state.fUSDCxBal}
                 ethBalance={this.state.ethBalance}
+                fundingGasBalance={this.addGasBalanceFunding}
                 funding={this.addFunding}
                 withdraw={this.withdrawFunding}
                 currentKpiEvaluationInterval={this.state.kpiEvaluationInterval}

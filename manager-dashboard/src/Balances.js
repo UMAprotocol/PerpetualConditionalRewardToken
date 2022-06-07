@@ -5,6 +5,7 @@ import Row from "react-bootstrap/Row";
 import Card from "react-bootstrap/Card";
 import DisplayBalance from "./DisplayBalance";
 import Fund from "./Fund";
+import FundGasBalance from "./FundGasBalance";
 import Withdraw from "./Withdraw";
 import ChangeContractProperties from "./ChangeContractProperties";
 import "./Balances.css";
@@ -15,11 +16,16 @@ class Balances extends Component {
         super(props);
 
         this.addFunding = this.addFunding.bind(this);
+        this.addGasBalanceFunding = this.addGasBalanceFunding.bind(this);
         this.withdrawFunding = this.withdrawFunding.bind(this);
     }
 
     addFunding(amount) {
         this.props.funding(amount)
+    }
+
+    addGasBalanceFunding(amount) {
+        this.props.fundingGasBalance(amount)
     }
 
     withdrawFunding(amount) {
@@ -55,6 +61,12 @@ class Balances extends Component {
                  <Card className="addFunds">
                     <Fund 
 	                funding={this.addFunding}
+                    />
+                </Card>
+                 
+                 <Card className="addGasBalanceFunds">
+                    <FundGasBalance
+	                funding={this.addGasBalanceFunding}
                     />
                 </Card>
 {/* 
