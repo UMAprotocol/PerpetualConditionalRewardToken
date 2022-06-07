@@ -43,10 +43,10 @@ class StreamList extends Component {
                 <Container>
                     <Row>
                
-                        <Card className="streamListTitle">
+                        {/* <Card className="streamListTitle">
                             <h3>Stream List</h3>
-                        </Card>
-                        <Button className="addStream" onClick={this.toggleCreateModal}>
+                        </Card> */}
+                        <Button className="createToken" onClick={this.toggleCreateModal}>
                             Configure initial recipients
                         </Button>
 {/* 

@@ -20,7 +20,7 @@ class ConnectWallet extends Component {
 
     render() {
             return (
-                <Button onClick={this.enableWallet} className="connectWallet">Connect Wallet</Button>
+                <Button onClick={this.enableWallet} className="notconnectWallet">Connect Wallet</Button>
 
                 )
         }

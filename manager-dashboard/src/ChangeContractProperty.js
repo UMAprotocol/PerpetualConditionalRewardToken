@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 
 class ChangeContractProperty extends Component {
     constructor(props) {
@@ -44,7 +46,11 @@ class ChangeContractProperty extends Component {
         return (
             <div>
             <Form onSubmit={this.handleSubmit}>
+                <Row>
+                    <Col>
                 <Form.Label htmlFor={this.props.propertyId}>{this.props.propertyDisplayName}: <br></br>{this.state.currentPropertyValue} {this.props.propertyUnits}</Form.Label>
+                    </Col>
+                    <Col>
                 <InputGroup>
                     <Form.Control type="text" name="newPropertyValue" placeholder="Enter value"
                     onChange={this.handleChange}
@@ -52,6 +58,8 @@ class ChangeContractProperty extends Component {
                     />
                     <Button type="submit" className="addWithdrawButton" size="sm" >Update</Button>
                 </InputGroup>
+                </Col>
+                </Row>
             </Form>
             </div>
         )

@@ -25,6 +25,7 @@ import { calculateStream } from "./config";
 import { calculateEndDate } from "./config";
 import StreamList from "./StreamList";
 import CreateTokens from "./CreateTokens";
+import ChangeContractProperties from "./ChangeContractProperties";
 import EditStream from "./EditStream";
 import CreatePCRToken from "./CreatePCRToken";
 import createPcrTokenUpkeepTask from "./CreateGelatoTask";
@@ -449,15 +450,29 @@ async componentDidMount() {
     render() {
         return (
             <div>
-            <Row className="top">
-            <Container>
+                <Container fluid="md">
+            {/* <Row className="top"> */}
             <Row>
                 <Col>
-                <h3 className="title">PCR Token Manager Dashboard</h3>
+                <h3 className="title">Launch a PCR Token</h3>
                 </Col>
+                </Row>
+            <Row>
+<Col>
+Step 1: PCR token launch v1
+</Col>
+                <Col>
+                {!this.state.connected || this.state.account === "" || this.state.account === undefined?
+                <ConnectWallet
+                getAccount={this.getAccount}
+                />
+                :
+                <div className="notconnectWallet">{`Using wallet: ${this.state.account.toString().substring(0, 4)}...${this.state.account.toString().substring(38)}`}</div>
+                }
+
                 {!this.state.pcrContract_address || this.state.pcrContract_address === "" || this.state.pcrContract_address === undefined
                 || this.state.pcrContract_address === "0x0000000000000000000000000000000000000000" ?
-                <Col>
+                <>
                 {/* // Create a new contract
                 // TODO: allow a preexisting contract to be chosen
                 // TODO: don't allow this to be clicked until the wallet has been connected */}
@@ -465,58 +480,47 @@ async componentDidMount() {
                 callPCRTokenFactoryFunction={this.callPCRTokenFactory}
                 getCurrentPCRTokenFunction={this.getCurrentPCRToken}
                 />
-                </Col>
+                </>
                 :  // We already know which contract we're using
                 <>
-                <Col>
-                <Card className="createToken">
+                <Card className="notcreateToken">
                     PCR Token address:&nbsp;
                     {`${this.state.pcrContract_address.toString().substring(0, 6)}...${this.state.pcrContract_address.toString().substring(38)}`}
                     {/* &nbsp;<a href={`https://rinkeby.etherscan.io/address/${this.state.pcrContract_address.toString()}`} target="_blank"> */}
-                    &nbsp;<a href={`https://polygonscan.com/address/${this.state.pcrContract_address.toString()}`} target="_blank">
-                        (etherscan)
-                    </a>
+                    <a href={`https://polygonscan.com/address/${this.state.pcrContract_address.toString()}`} target="_blank"> (view)</a>
                 </Card>
-                </Col>
-                {
-                this.state.upkeepTaskUrl === ""  | typeof this.state.upkeepTaskUrl === 'object' // Uninitialised/pending promise
-                    ?
-                    <Col>
-                        <Button id="createUpkeepTask" onClick={this.createUpkeepTask} className="createToken">Create Gelato automation task</Button>
-                    </Col>
-                    :
-                    <Col>
-                        <Card className="createToken">
-                            Gelato task requested/created.
-                            &nbsp;<a href="https://app.gelato.network/" target="_blank">
-                                (view and fund)
-                            </a>
-                        </Card>
-                    </Col>
-                    }
-
-                <Col>
                     <Button onClick={this.addCurrentPCRTokenToMetamask} className="createToken">Add token to MetaMask</Button>
-                </Col>
                 </>
-                }
-
-                <Col>
-                {!this.state.connected || this.state.account === "" || this.state.account === undefined?
-                <ConnectWallet
-                getAccount={this.getAccount}
-                />
-                :
-                <Card className="connectWallet">{`${this.state.account.toString().substring(0, 4)}...${this.state.account.toString().substring(38)}`}</Card>
                 }
                 </Col>
                 </Row>
-            </Container>
+                <Row>
+<Col>
+Step 2: Configure your token's KPI properties
+</Col>
 
-            </Row>
+<Col>
+                <Card className="changeContractProperties">
+                    <ChangeContractProperties 
+                    currentKpiEvaluationInterval={this.state.kpiEvaluationInterval}
+                    changeKpiEvaluationInterval={this.changeKpiEvaluationInterval}
+                    getKpiEvaluationInterval={this.getKpiEvaluationInterval}
+                    currentKpiDisputeWindow={this.state.kpiDisputeWindow}
+                    changeKpiDisputeWindow={this.changeKpiDisputeWindow}
+                    getKpiDisputeWindow={this.getKpiDisputeWindow}
+                    currentPayoutAmount={this.state.payoutAmount_ether}
+                    changePayoutAmount={this.changePayoutAmount_ether}
+                    getPayoutAmount={this.getPayoutAmount_ether}
+                    />
+                </Card>
+</Col>
+                </Row>
 
-
-            <Row>
+                <Row>
+<Col>
+Step 3: Fund the contract's balance
+</Col>
+<Col>
             <Container>
                 <Balances
                 fUSDCxBal={this.state.fUSDCxBal}
@@ -538,25 +542,51 @@ async componentDidMount() {
                 updateBalanceFunction={this.getBalance}
                 />
             </Container>
-            </Row>
+            </Col>
 
+</Row>
+
+                <Row>
+<Col>
+Step 4: Distribute the initial tokens
+</Col>
+<Col>
            <Container>
-               
                { <StreamList 
                 toggleCreateModal={this.toggleCreateModal}
                 toggleEditModal={this.toggleEditModal}
                 streams={this.state.outFlows}
                 rewardCurrencyContract={this.state.rewardCurrencyContract}
-
                 /> }
-               
-           </Container>
+            </Container>
+            </Col>
+            </Row>
+
+
+            <Row>
+<Col>
+Step 5: Start your token's KPI monitoring!
+</Col>
+<Col>
+                {
+                this.state.upkeepTaskUrl === ""  | typeof this.state.upkeepTaskUrl === 'object' // Uninitialised/pending promise
+                    ?
+                        <Button id="createUpkeepTask" onClick={this.createUpkeepTask} className="createToken">Create token automation task</Button>
+                    :
+                        <Card className="notcreateToken">
+                            Task automation created <a href="https://app.gelato.network/" target="_blank">(view on Gelato)</a>
+                        </Card>
+                    }
+
+                </Col>
+            </Row>
+</Container>
+
             <Container>
             {this.state.addingRecipients? this.showCreateModal(): ()=>{}}
             {this.state.editingStream? this.showEditModal(this.state.editingAddress): ()=>{}}
 
             </Container>
-
             </div>
         )
     }

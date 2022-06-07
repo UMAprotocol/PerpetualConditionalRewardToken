@@ -7,7 +7,6 @@ import DisplayBalance from "./DisplayBalance";
 import Fund from "./Fund";
 import FundGasBalance from "./FundGasBalance";
 import Withdraw from "./Withdraw";
-import ChangeContractProperties from "./ChangeContractProperties";
 import "./Balances.css";
 import MonthlyOutflows from "./MonthlyOutflows";
 
@@ -57,6 +56,8 @@ class Balances extends Component {
                     />
                 </Card>
                 {/* } */}
+                </Col>
+                <Col>
                  
                  <Card className="addFunds">
                     <Fund 
@@ -75,31 +76,17 @@ class Balances extends Component {
 	                withdraw={this.withdrawFunding}
                     />
                 </Card> */}
-
-                <Card className="changeContractProperties">
-                    <ChangeContractProperties 
-                    changeKpiEvaluationInterval={this.props.changeKpiEvaluationInterval}
-                    getKpiEvaluationInterval={this.props.getKpiEvaluationInterval}
-                    currentKpiEvaluationInterval={this.props.currentKpiEvaluationInterval}
-                    changeKpiDisputeWindow={this.props.changeKpiDisputeWindow}
-                    getKpiDisputeWindow={this.props.getKpiDisputeWindow}
-                    currentKpiDisputeWindow={this.props.currentKpiDisputeWindow}
-                    changePayoutAmount={this.props.changePayoutAmount}
-                    getPayoutAmount={this.props.getPayoutAmount}
-                    currentPayoutAmount={this.props.currentPayoutAmount}
-                    />
-                </Card>
             </Col>
                
 
-            <Col>
+            {/* <Col>
                 <Card className="funding" >
                     <MonthlyOutflows
                     outflows={this.props.outflows}
                     endDate={this.props.endDate}
                     />
                 </Card>
-            </Col>
+            </Col> */}
 
             </Row>
             </Container>

@@ -18,6 +18,7 @@ class CreateTokens extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.launchBulkTransferSite = this.launchBulkTransferSite.bind(this)
     }
 
     handleChange(evt) {
@@ -31,10 +32,13 @@ class CreateTokens extends Component {
         this.setState({created: false})
         setTimeout(() => {
             // let address = Web3.utils.toChecksumAddress(stream.address);
-            this.props.createTokens(500)
+            this.props.createTokens((10*parseInt(this.state.addresses)).toString())
             .then(console.log())
             .then(this.setState({addresses: "", created: true}))
         }, 2000);
+    }
+    launchBulkTransferSite() {
+        window.open('https://cryptomultisender.com/','_blank')
     }
 
     render() {
@@ -49,7 +53,7 @@ class CreateTokens extends Component {
                 <Container>
                 <Form>
                     <Form.Group className="mb-3">
-                        <Form.Label htmlFor="addresses">Recipient Addresses (on new lines) </Form.Label>
+                        <Form.Label htmlFor="addresses">How many initial recipients?</Form.Label>
                         <Form.Control type="text" name="addresses" value={this.state.addresses} onChange={this.handleChange}></Form.Control>
                     </Form.Group>
                 </Form>
@@ -57,8 +61,11 @@ class CreateTokens extends Component {
             </Modal.Body>
 
             <Modal.Footer>
-                {this.state.created? <Button variant="primary" onClick={this.handleSubmit}>Create tokens</Button>
+                {this.state.created? <Button variant="primary" onClick={this.handleSubmit}>(1) Mint tokens into your wallet</Button>
                 :<Spinner animation="border" variant="primary"></Spinner>}
+              <Button variant="primary" onClick={this.launchBulkTransferSite}>
+                (2) Send to recipients
+              </Button>
               <Button variant="secondary" onClick={this.props.closeCreateModal}>
                 Close
               </Button>

@@ -43,11 +43,9 @@ render() {
         <div >
         <h5>Rewards pool balance (DAIx)</h5>
         {/* <h2>{this.props.outflows === 0? '$0.00' */}
-        <h2>${this.state.balance}</h2>
+        <p>${this.state.balance}</p>
         <h5>Balance for contract maintenance gas</h5>
-        <h2>{this.state.ethBalance} MATIC</h2>
-        <h5>Rewards pool balance could hit zero on:</h5>
-        ?<br></br>
+        <p>{this.state.ethBalance} MATIC</p>
 
         </div>
     )       

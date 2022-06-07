@@ -38,9 +38,9 @@ class ChangeContractProperties extends Component {
     render() {
         return (
             <div>
-            <Row>            
             
             <Col>
+            <Row>            
                 <ChangeContractProperty
                     propertyDisplayName="KPI evaluation interval"
                     propertyId="kpiEvaluationInterval"
@@ -49,8 +49,8 @@ class ChangeContractProperties extends Component {
                     getPropertyFunction={this.props.getKpiEvaluationInterval}
                     currentPropertyValue={this.props.currentKpiEvaluationInterval}
                 />
-            </Col>
-            <Col>
+            </Row>
+            <Row>            
                 <ChangeContractProperty
                     propertyDisplayName="KPI dispute window"
                     propertyId="kpiDisputeWindow"
@@ -59,8 +59,8 @@ class ChangeContractProperties extends Component {
                     getPropertyFunction={this.props.getKpiDisputeWindow}
                     currentPropertyValue={this.props.currentKpiDisputeWindow}
                 />
-            </Col>
-            <Col>
+            </Row>
+            <Row>            
                 <ChangeContractProperty
                     propertyDisplayName="Payout amount"
                     propertyId="payoutAmount"
@@ -69,8 +69,8 @@ class ChangeContractProperties extends Component {
                     getPropertyFunction={this.props.getPayoutAmount}
                     currentPropertyValue={this.props.currentPayoutAmount}
                 />
-            </Col>
             </Row>
+            </Col>
             </div>
         )
     }
