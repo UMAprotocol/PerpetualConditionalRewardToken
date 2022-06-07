@@ -3,7 +3,7 @@ import { ethers, Contract } from "ethers";
 
 
 async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
-        upkeepFunctionSignature, checkUpkeepFunctionSignature, signer) {
+        upkeepFunctionSignature, checkUpkeepFunctionSignature, signer, contractPaysFees) {
     // const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
     // const chainId = 4;  // rinkeby
     const chainId = 137;  // Polygon
@@ -29,8 +29,8 @@ async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
         resolverAddress: tokenContract.address,
         resolverData: resolverData,
         resolverAbi: JSON.stringify(contractAbi),
-        useTreasury: true,
-        name: "PCR Token (fees paid by token manager)",
+        useTreasury: contractPaysFees ? false : true,
+        name: "PCR Token " + (contractPaysFees ? "(fees paid by token)" : "(fees paid by manager's gelato balance)"),
     });
     // FIXME: signing of the task name doesn't complete successfully because CORS header isn't added.
     // Works fine on Polygon but not Rinkeby.

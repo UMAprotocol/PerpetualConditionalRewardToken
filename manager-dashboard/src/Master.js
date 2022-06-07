@@ -4,6 +4,7 @@ import Web3 from "web3";
 import detectEthereumProvider from '@metamask/detect-provider';
 import BigNumber from "bignumber.js";
 import SuperfluidSDK from "@superfluid-finance/js-sdk";
+import { gelatoFeesPaidByContract } from "./config";
 import { pcrTokenFactory_address } from "./config";
 import { PCRTokenFactoryabi } from "./abis/PcrTokenFactoryabi";
 import { rewardCurrency_address, fUSDC_address } from "./config";
@@ -225,10 +226,10 @@ addCurrentPCRTokenToMetamask() {
 createUpkeepTask() {
     var btn = document.getElementById("createUpkeepTask");
     btn.innerHTML = "Creating task...";
-    const upkeepFunctionSignature = "performUpkeep_noCallData()"; //"performUpkeepAndPayGelatoFees()";
+    const upkeepFunctionSignature = gelatoFeesPaidByContract ? "performUpkeepAndPayGelatoFees()" : "performUpkeep_noCallData()";
     const checkUpkeepFunctionSignature = "checkUpkeep_noCallData()";
     const upkeepTaskUrl = createPcrTokenUpkeepTask(this.state.pcrContract_address, perpetualConditionalRewardsTokenabi,
-        upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer)
+        upkeepFunctionSignature, checkUpkeepFunctionSignature, this.state.signer, gelatoFeesPaidByContract)
         .then(
     this.setState({ upkeepTaskUrl: upkeepTaskUrl })
         )
