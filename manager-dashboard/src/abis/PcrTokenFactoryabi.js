@@ -1,17 +1,11 @@
 export const PCRTokenFactoryabi = [
 	{
-		"inputs": [
-			{
-				"internalType": "bool",
-				"name": "useIda",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "useOracle",
-				"type": "bool"
-			}
-		],
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
 		"name": "createPcrToken",
 		"outputs": [
 			{
@@ -22,11 +16,6 @@ export const PCRTokenFactoryabi = [
 		],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
 	},
 	{
 		"inputs": [],

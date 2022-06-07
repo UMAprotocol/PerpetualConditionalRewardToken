@@ -131,32 +131,6 @@ export const perpetualConditionalRewardsTokenabi = [
 	},
 	{
 		"inputs": [],
-		"name": "_actuallyUseIda",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "_actuallyUseOracle",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "_gelatoOpsAddress",
 		"outputs": [
 			{
@@ -507,18 +481,7 @@ export const perpetualConditionalRewardsTokenabi = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "bool",
-				"name": "actuallyUseIda",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "actuallyUseOracle",
-				"type": "bool"
-			}
-		],
+		"inputs": [],
 		"name": "initialize",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -703,32 +666,6 @@ export const perpetualConditionalRewardsTokenabi = [
 				"type": "bool"
 			}
 		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bool",
-				"name": "useIda",
-				"type": "bool"
-			}
-		],
-		"name": "setActuallyUseIda",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bool",
-				"name": "useOracle",
-				"type": "bool"
-			}
-		],
-		"name": "setActuallyUseOracle",
-		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},

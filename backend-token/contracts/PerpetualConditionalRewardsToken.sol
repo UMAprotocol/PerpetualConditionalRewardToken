@@ -48,8 +48,8 @@ contract PerpetualConditionalRewardsToken is
     string private _name;
     string private _symbol;
 
-    bool public _actuallyUseOracle = true;
-    bool public _actuallyUseIda = true;
+    bool private actuallyUseOracle = true;
+    bool private actuallyUseIda = true;
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
@@ -102,8 +102,6 @@ contract PerpetualConditionalRewardsToken is
         // string memory name,
         // string memory symbol,
         // address _owner
-        bool actuallyUseIda,
-        bool actuallyUseOracle
         /*
         ISuperToken cashToken,
         ISuperfluid host,
@@ -120,8 +118,8 @@ contract PerpetualConditionalRewardsToken is
         ops = _gelatoOpsAddress;
         gelato = IOps(ops).gelato();
     
-        _actuallyUseOracle = actuallyUseOracle;
-        _actuallyUseIda = actuallyUseIda;
+        actuallyUseOracle = true;
+        actuallyUseIda = true;
 
         _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
         _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
@@ -138,7 +136,7 @@ contract PerpetualConditionalRewardsToken is
 
 
 
-        if (_actuallyUseOracle) {
+        if (actuallyUseOracle) {
         // Kovan UMA Optimistic Oracle addresses
         // From https://docs.umaproject.org/resources/network-addresses
         // _oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
@@ -156,7 +154,7 @@ contract PerpetualConditionalRewardsToken is
         // Schedule the first request (processing in this contract will be triggered by a Keeper when the time comes).
         _oracleRequestDueAt_timestamp = block.timestamp;// + _oracleRequestInterval_sec;
 
-        if (_actuallyUseIda) {
+        if (actuallyUseIda) {
         // Kovan superfluid addresses
         // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
         // ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
@@ -199,16 +197,6 @@ contract PerpetualConditionalRewardsToken is
     // Allow contract to receive ETH balance to pay for its Gelato Task upkeep
     // FIXME: Still cannot send ether to the contract via metamask
     receive() external payable {}
-
-    function setActuallyUseIda(bool useIda) external
-    {
-        _actuallyUseIda = useIda;
-    }
-
-    function setActuallyUseOracle(bool useOracle) external
-    {
-        _actuallyUseOracle = useOracle;
-    }
 
     function setPayoutAmount(uint256 amount_eth) external
     {
@@ -257,7 +245,7 @@ contract PerpetualConditionalRewardsToken is
 
         _oracleRequestTimestamp = block.timestamp;  // Used as a request ID of sorts
         int256 proposedPrice = 1 ether;
-        if (!_actuallyUseOracle) {
+        if (!actuallyUseOracle) {
             return true;
         }
 
@@ -274,7 +262,7 @@ contract PerpetualConditionalRewardsToken is
     /// @dev Retrieve the verification result, if the verification process has finished
     function getOracleVerificationResult() public returns (bool) {
         bool verified = false;
-        if (!_actuallyUseOracle) {
+        if (!actuallyUseOracle) {
             return true;
         }
         int256 resolvedPrice = _oracle.settleAndGetPrice(_identifier, _oracleRequestTimestamp, _ancillaryData);
@@ -290,7 +278,7 @@ contract PerpetualConditionalRewardsToken is
     /// @dev Distribute predefined amount among all token holders IFF verification succeeded
     function distributeIfOracleVerificationSucceeded() public /*onlyOwner*/ {
         if (getOracleVerificationResult()) {
-            if (!_actuallyUseIda) {
+            if (!actuallyUseIda) {
                 return;
             }
             distribute(_payoutAmountOnOracleConfirmation);

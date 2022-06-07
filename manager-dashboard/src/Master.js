@@ -196,9 +196,7 @@ isConnected() {
 }
 
 async callPCRTokenFactory() {
-    let useIda = true;
-    let useOracle = false;
-    await this.state.pcrTokenFactory.methods.createPcrToken(useIda, useOracle).send({from: this.state.account}).then(console.log)
+    await this.state.pcrTokenFactory.methods.createPcrToken().send({from: this.state.account}).then(console.log)
 }
 
 async getCurrentPCRToken() {
