@@ -254,7 +254,7 @@ contract PerpetualConditionalRewardsToken is
         // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
         _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
         // Propose that the task has been completed
-        _oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
+        //_oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
 
         return true;
     }
