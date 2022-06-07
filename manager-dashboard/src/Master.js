@@ -462,7 +462,8 @@ async componentDidMount() {
                 <Card className="createToken">
                     PCR Token address:&nbsp;
                     {`${this.state.pcrContract_address.toString().substring(0, 6)}...${this.state.pcrContract_address.toString().substring(38)}`}
-                    &nbsp;<a href={`https://rinkeby.etherscan.io/address/${this.state.pcrContract_address.toString()}`} target="_blank">
+                    {/* &nbsp;<a href={`https://rinkeby.etherscan.io/address/${this.state.pcrContract_address.toString()}`} target="_blank"> */}
+                    &nbsp;<a href={`https://polygonscan.com/address/${this.state.pcrContract_address.toString()}`} target="_blank">
                         (etherscan)
                     </a>
                 </Card>

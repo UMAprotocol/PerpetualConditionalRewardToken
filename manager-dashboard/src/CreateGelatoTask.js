@@ -6,7 +6,7 @@ async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
         upkeepFunctionSignature, checkUpkeepFunctionSignature, signer) {
     // const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
     // const chainId = 4;  // rinkeby
-    const chainId = 137;  // rinkeby
+    const chainId = 137;  // Polygon
     if (!isGelatoOpsSupported(chainId)) {
         console.log(`Gelato Ops network not supported (${chainId})`);
         return;
@@ -33,6 +33,7 @@ async function createPcrTokenUpkeepTask(contractAddress, contractAbi,
         name: "PCR Token (fees paid by token manager)",
     });
     // FIXME: signing of the task name doesn't complete successfully because CORS header isn't added.
+    // Works fine on Polygon but not Rinkeby.
     console.log("Task created, taskId: " + res.taskId + " tx hash: " + res.transactionHash);
     const upkeepTaskUrl = "https://app.gelato.network/task/" + res.taskId + "?chainId=" + chainId
     console.log("> " + upkeepTaskUrl);
