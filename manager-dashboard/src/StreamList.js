@@ -40,8 +40,6 @@ class StreamList extends Component {
         return (
             
             <div className="streamList">
-                <Container>
-                    <Row>
                
                         {/* <Card className="streamListTitle">
                             <h3>Stream List</h3>
@@ -60,8 +58,6 @@ class StreamList extends Component {
                         </thead>
                         {this.renderStreams()}
                         </Table>  */}
-                    </Row>
-                </Container>
             </div>
         )
     }

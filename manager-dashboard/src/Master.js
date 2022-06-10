@@ -454,12 +454,13 @@ async componentDidMount() {
             {/* <Row className="top"> */}
             <Row>
                 <Col>
-                <h3 className="title">Launch a PCR Token</h3>
+                <h3 className="title">PCR Token Launcher v1</h3>
                 </Col>
                 </Row>
+<Row><div>&nbsp;</div></Row>
             <Row>
 <Col>
-Step 1: PCR token launch v1
+Step 1: Create your PCR token
 </Col>
                 <Col>
                 {!this.state.connected || this.state.account === "" || this.state.account === undefined?
@@ -469,7 +470,12 @@ Step 1: PCR token launch v1
                 :
                 <div className="notconnectWallet">{`Using wallet: ${this.state.account.toString().substring(0, 4)}...${this.state.account.toString().substring(38)}`}</div>
                 }
-
+                </Col>
+                </Row>
+                <Row>
+                <Col>
+                </Col>
+                <Col>
                 {!this.state.pcrContract_address || this.state.pcrContract_address === "" || this.state.pcrContract_address === undefined
                 || this.state.pcrContract_address === "0x0000000000000000000000000000000000000000" ?
                 <>
@@ -494,6 +500,7 @@ Step 1: PCR token launch v1
                 }
                 </Col>
                 </Row>
+<Row><div>&nbsp;</div></Row>
                 <Row>
 <Col>
 Step 2: Configure your token's KPI properties
@@ -516,6 +523,7 @@ Step 2: Configure your token's KPI properties
 </Col>
                 </Row>
 
+<Row><div>&nbsp;</div></Row>
                 <Row>
 <Col>
 Step 3: Fund the contract's balance
@@ -546,6 +554,7 @@ Step 3: Fund the contract's balance
 
 </Row>
 
+<Row><div>&nbsp;</div></Row>
                 <Row>
 <Col>
 Step 4: Distribute the initial tokens
@@ -562,6 +571,7 @@ Step 4: Distribute the initial tokens
             </Col>
             </Row>
 
+<Row><div>&nbsp;</div></Row>
 
             <Row>
 <Col>
