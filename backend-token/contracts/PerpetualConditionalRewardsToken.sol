@@ -276,15 +276,24 @@ contract PerpetualConditionalRewardsToken is
         if (!actuallyUseOracle) {
             return true;
         }
-
+        
+        _oracleRequestCurrency.approve(address(_oracle), _oracleRequestReward);
         // Request price from oracle to start the process
         _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestCurrency, _oracleRequestReward);
-        // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
-        //_oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
-        // Propose that the task has been completed
+
+        // Propose that the task has been completed (this requires a bond to be transferred on mainnet)
         //_oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
 
         return true;
+    }
+
+    function oracleSetLiveness(uint256 time_sec) public {
+        // Shorten the liveness so that the question is settled faster (default 7200 seconds = 2h)
+        _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, time_sec);
+    }
+
+    function oracleSetBond(uint256 bond) public {
+        _oracle.setBond(_identifier, _oracleRequestTimestamp, _ancillaryData, bond);
     }
 
     /// @dev Retrieve the verification result, if the verification process has finished
