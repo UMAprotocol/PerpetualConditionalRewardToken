@@ -53,16 +53,19 @@ contract PerpetualConditionalRewardsToken is
 
     uint32 public constant INDEX_ID = 0;
     uint8 private _decimals;
+    Network private _network;
 
-    bytes private _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
+
+    bytes private _ancillaryData = abi.encodePacked("q: title: At least 25 transactions on Gelato Polygon network on 6 June 2022? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during 6 June 2022 UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 6 June 2022 UTC and 23:59 6 June 2022 UTC are to be included. This chain explorer link can be used as a reference: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=2022-06-06~2022-06-06. res_data: p1: 0, p2: 1, p3: 0.5. Where p1 corresponds to No, p2 to a Yes, p3 to unknown");
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
     OptimisticOracleInterface _oracle;
-    IERC20 private _oracleRequestCurrency;
+    IERC20 public _oracleRequestCurrency;
 
     uint256 private _oracleRequestTimestamp;
     uint256 public _payoutAmountOnOracleConfirmation = 1 ether;
-    uint256 public _oracleRequestLiveness_sec = 10;
+    uint256 public _oracleRequestLiveness_sec = 2 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;
     uint256 public _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
+    uint256 public _oracleRequestReward = 1000000;  // USDC 6 decimals
 
     // address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
     address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
@@ -96,6 +99,7 @@ contract PerpetualConditionalRewardsToken is
         // Clones won't have the constructor called so will be unaffected.
         // Prevent the implementation contract from being used (its sole purpose is to be cloned).
         //_disableInitializers();
+        initialize();
     }
 
     function initialize(
@@ -121,13 +125,15 @@ contract PerpetualConditionalRewardsToken is
         actuallyUseOracle = true;
         actuallyUseIda = true;
 
-        _ancillaryData = abi.encodePacked("q: title: Will Deanna recover from jetlag by 1 May?, description: This is a yes or no question. res_data: p1: 0, p2: 1, p3: 0.5. Where p2 corresponds to Yes, p1 to a No, p3 to unknown"); 
+        _ancillaryData = abi.encodePacked("q: title: At least 25 transactions on Gelato Polygon network on 6 June 2022? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during 6 June 2022 UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 6 June 2022 UTC and 23:59 6 June 2022 UTC are to be included. This chain explorer link can be used as a reference: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=2022-06-06~2022-06-06. res_data: p1: 0, p2: 1, p3: 0.5. Where p1 corresponds to No, p2 to a Yes, p3 to unknown");
         _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
 
         _oracleRequestTimestamp;
         _payoutAmountOnOracleConfirmation = 1 ether;
-        _oracleRequestLiveness_sec = 10;
+        _oracleRequestLiveness_sec = 2 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;
         _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
+        _oracleRequestReward = 1000000;  // USDC 6 decimals
+
 
         _oracleSettlementOverdue = false;
         _oracleRequestOverdue = false;
@@ -148,7 +154,8 @@ contract PerpetualConditionalRewardsToken is
         
         // Polygon UMA Optimistic Oracle addresses
         _oracle = OptimisticOracleInterface(address(0xBb1A8db2D4350976a11cdfA60A1d43f97710Da49));
-        _oracleRequestCurrency = IERC20(address(0x3066818837c5e6eD6601bd5a91B0762877A6B731));  // UMA (couldn't find DAI in whitelist)
+        // _oracleRequestCurrency = IERC20(address(0x3066818837c5e6eD6601bd5a91B0762877A6B731));  // UMA (couldn't find DAI in whitelist)
+        _oracleRequestCurrency = IERC20(address(0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174));  // USDC
         }
 
         // Schedule the first request (processing in this contract will be triggered by a Keeper when the time comes).
@@ -207,6 +214,11 @@ contract PerpetualConditionalRewardsToken is
     {
         _oracleRequestInterval_sec = interval_sec;
     }
+    
+    function setOracleRequestReward(uint256 amount_usdc) external
+    {
+        _oracleRequestReward = amount_usdc;
+    }
 
     function setOracleRequestLiveness(uint256 liveness_sec) external
     {
@@ -250,7 +262,7 @@ contract PerpetualConditionalRewardsToken is
         }
 
         // Request price from oracle to start the process
-        _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestCurrency, 0);
+        _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestCurrency, _oracleRequestReward);
         // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
         _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
         // Propose that the task has been completed
