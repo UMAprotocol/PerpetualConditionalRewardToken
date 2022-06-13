@@ -460,7 +460,7 @@ async componentDidMount() {
 <Row><div>&nbsp;</div></Row>
             <Row>
 <Col>
-Step 1: Create your PCR token
+Step 1: Create and customize your PCR token
 </Col>
                 <Col>
                 {!this.state.connected || this.state.account === "" || this.state.account === undefined?
@@ -503,7 +503,7 @@ Step 1: Create your PCR token
 <Row><div>&nbsp;</div></Row>
                 <Row>
 <Col>
-Step 2: Configure your token's KPI properties
+{/* Step 2: Configure your token's KPI properties */}
 </Col>
 
 <Col>
@@ -522,6 +522,23 @@ Step 2: Configure your token's KPI properties
                 </Card>
 </Col>
                 </Row>
+
+<Row><div>&nbsp;</div></Row>
+                <Row>
+<Col>
+Step 2: Distribute the initial tokens
+</Col>
+<Col>
+           <Container>
+               { <StreamList 
+                toggleCreateModal={this.toggleCreateModal}
+                toggleEditModal={this.toggleEditModal}
+                streams={this.state.outFlows}
+                rewardCurrencyContract={this.state.rewardCurrencyContract}
+                /> }
+            </Container>
+            </Col>
+            </Row>
 
 <Row><div>&nbsp;</div></Row>
                 <Row>
@@ -555,27 +572,10 @@ Step 3: Fund the contract's balance
 </Row>
 
 <Row><div>&nbsp;</div></Row>
-                <Row>
-<Col>
-Step 4: Distribute the initial tokens
-</Col>
-<Col>
-           <Container>
-               { <StreamList 
-                toggleCreateModal={this.toggleCreateModal}
-                toggleEditModal={this.toggleEditModal}
-                streams={this.state.outFlows}
-                rewardCurrencyContract={this.state.rewardCurrencyContract}
-                /> }
-            </Container>
-            </Col>
-            </Row>
-
-<Row><div>&nbsp;</div></Row>
 
             <Row>
 <Col>
-Step 5: Start your token's KPI monitoring!
+Step 4: Start your token's KPI monitoring!
 </Col>
 <Col>
                 {
