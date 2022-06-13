@@ -41,6 +41,7 @@ class Master extends Component {
             sf: {},
             connected: true,
             account: '',
+            chainId: '?',
             fUSDC: {},
             rewardCurrencyContract: {},
             fUSDCxBal: 0,
@@ -90,19 +91,20 @@ class Master extends Component {
 
     }
 
-    async initWeb3() {
-        
-        const provider = await detectEthereumProvider();
-        const web3 = new Web3(provider);
+async initWeb3() {
+    
+    const provider = await detectEthereumProvider();
+    const web3 = new Web3(provider);
 
-        if (provider) {
-            const sf = new SuperfluidSDK.Framework({
-                web3: new Web3(provider)
-            });
+    if (provider) {
+        const sf = new SuperfluidSDK.Framework({
+            web3: new Web3(provider)
+        });
 
-            await sf.initialize();
+        await sf.initialize();
+        await this.getChainId();
 
-        
+    
         const fUSDC = new web3.eth.Contract(ERC20abi, fUSDC_address);
         const rewardCurrencyContract = new web3.eth.Contract(fUSDCxabi, rewardCurrency_address);
         const pcrTokenFactory = new web3.eth.Contract(PCRTokenFactoryabi, pcrTokenFactory_address);
@@ -119,13 +121,13 @@ class Master extends Component {
         this.getKpiDisputeWindow();
         this.getPayoutAmount_ether();
 
-    await this.getAccount();
+        await this.getAccount();
 
-    if (this.state.account.length > 0) {
-    await this.getBalance();
-    await this.listOutFlows();
-    await this.getTotalOutflows();
-    await this.getEndDate(); 
+        if (this.state.account.length > 0) {
+        await this.getBalance();
+        await this.listOutFlows();
+        await this.getTotalOutflows();
+        await this.getEndDate(); 
     }
 
     }
@@ -136,53 +138,59 @@ class Master extends Component {
    
 }
 
+async getChainId() {
+    const chainId = await this.state.web3.eth.getChainId()
+    this.setState({
+        chainId: chainId,
+    })
+    console.log("Chain ID: " + chainId)
+}
+
 async getAccount() {
     const acct = await window.ethereum.request({ method: 'eth_accounts' })
           
-          if (acct.length > 0) {
-              this.setState({
-                  connected: true, 
-                  account: acct[0]
-                })
-          }
-          else if (acct.length === 0) {
-              this.setState({
-                  connected: false,
-                  account: ""
-              })
-          }
-          
-          let currentAccount = acct;
-            window.ethereum
-            .request({ method: 'eth_accounts' })
-            .then(handleAccountsChanged)
-            .catch((err) => {
-                // Some unexpected error.
-                // For backwards compatibility reasons, if no accounts are available,
-                // eth_accounts will return an empty array.
-                console.error(err);
-            });
-
-            console.log("Getting signer!!--------------------")
-            const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
-            console.log(signer)
-            this.setState({
-                signer: signer,
-            })
-
-            //handles a change in connected accounts
-            function handleAccountsChanged(accounts) {
-                if (accounts.length === 0) {
-                    // MetaMask is locked or the user has not connected any accounts
-                    console.log('Please connect to MetaMask.');
-               
-                } else if (accounts[0] !== currentAccount) {
-                    currentAccount = accounts[0];
-                }
-            }
-            
-            window.ethereum.on('accountsChanged', this.isConnected, handleAccountsChanged);
+    if (acct.length > 0) {
+        this.setState({
+            connected: true, 
+            account: acct[0]
+        })
     }
+    else if (acct.length === 0) {
+        this.setState({
+            connected: false,
+            account: ""
+        })
+    }
+    
+    let currentAccount = acct;
+    window.ethereum
+    .request({ method: 'eth_accounts' })
+    .then(handleAccountsChanged)
+    .catch((err) => {
+        // Some unexpected error.
+        // For backwards compatibility reasons, if no accounts are available,
+        // eth_accounts will return an empty array.
+        console.error(err);
+    });
+
+    const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+    this.setState({
+        signer: signer,
+    })
+
+    //handles a change in connected accounts
+    function handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+            // MetaMask is locked or the user has not connected any accounts
+            console.log('Please connect to MetaMask.');
+        
+        } else if (accounts[0] !== currentAccount) {
+            currentAccount = accounts[0];
+        }
+    }
+    
+    window.ethereum.on('accountsChanged', this.isConnected, handleAccountsChanged);
+}
 
 
 isConnected() {
