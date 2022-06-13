@@ -153,10 +153,12 @@ contract PerpetualConditionalRewardsToken is
                 // From https://docs.umaproject.org/resources/network-addresses
                 _oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
                 _oracleRequestCurrency = IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99));  // DAI
+                // _oracleRequestCurrency = IERC20(address(0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174));  // USDC
             } else if (Network.Rinkeby == _network){
                 // Rinkeby UMA Optimistic Oracle addresses
                 _oracle = OptimisticOracleInterface(address(0x3746badD4d6002666dacd5d7bEE19f60019A8433));
-                _oracleRequestCurrency = IERC20(address(0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa));  // DAI
+                // _oracleRequestCurrency = IERC20(address(0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa));  // DAI
+                _oracleRequestCurrency = IERC20(address(0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174));  // USDC
             } else if (Network.Polygon == _network){
                 // Polygon UMA Optimistic Oracle addresses
                 _oracle = OptimisticOracleInterface(address(0xBb1A8db2D4350976a11cdfA60A1d43f97710Da49));
@@ -174,15 +176,18 @@ contract PerpetualConditionalRewardsToken is
             if (Network.Kovan == _network) {
                 // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
                 _host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
-                _cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);  // fDAIx
+                // _cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);  // fDAIx
+                _cashToken = ISuperToken(0x25B5cD2E6ebAedAa5E21d0ECF25A567EE9704aA7);  // fUSDCx
                 _ida = IInstantDistributionAgreementV1(0x556ba0b3296027Dd7BCEb603aE53dEc3Ac283d2b);
             } else if (Network.Rinkeby == _network){
                 _host = ISuperfluid(0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6);
-                _cashToken = ISuperToken(0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90);  // fDAIx
+                // _cashToken = ISuperToken(0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90);  // fDAIx
+                _cashToken = ISuperToken(0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8);  // fUSDCx
                 _ida = IInstantDistributionAgreementV1(0x32E0ecb72C1dDD92B007405F8102c1556624264D);
             } else if (Network.Polygon == _network){
                 _host = ISuperfluid(0x3E14dC1b13c488a8d5D310918780c983bD5982E7);
-                _cashToken = ISuperToken(0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2);  // DAIx
+                // _cashToken = ISuperToken(0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2);  // DAIx
+                _cashToken = ISuperToken(0xCAa7349CEA390F89641fe306D93591f87595dc1F);  // fUSDCx
                 _ida = IInstantDistributionAgreementV1(0xB0aABBA4B2783A72C52956CDEF62d438ecA2d7a1);
             } else {
                 require(false, "Unsupported network");
@@ -275,7 +280,7 @@ contract PerpetualConditionalRewardsToken is
         // Request price from oracle to start the process
         _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestCurrency, _oracleRequestReward);
         // Shorten the liveness so that the question is settled faster for demo (not possible on mainnet within same call)
-        _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
+        //_oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
         // Propose that the task has been completed
         //_oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
 
