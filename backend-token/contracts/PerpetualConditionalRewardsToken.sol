@@ -35,6 +35,11 @@ interface IOps {
     function getFeeDetails() external view returns (uint256, address);
 }
 
+enum Network {
+    Kovan,
+    Rinkeby, 
+    Polygon
+    }
 
 contract PerpetualConditionalRewardsToken is
     // Ownable,
@@ -67,8 +72,9 @@ contract PerpetualConditionalRewardsToken is
     uint256 public _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
     uint256 public _oracleRequestReward = 1000000;  // USDC 6 decimals
 
+    address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
     // address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
-    address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
+    // address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -115,6 +121,7 @@ contract PerpetualConditionalRewardsToken is
         // Manually initialize ERC20 properties that don't get called from the constructor on clones
         _name = "name";
         _symbol = "symbol";
+        _network = Network.Kovan;
     
         //transferOwnership(_owner);
 
@@ -140,62 +147,61 @@ contract PerpetualConditionalRewardsToken is
         _oracleRequestDueAt_timestamp = type(uint256).max;
         _oracleSettlementDueAt_timestamp = type(uint256).max;
 
-
-
         if (actuallyUseOracle) {
-        // Kovan UMA Optimistic Oracle addresses
-        // From https://docs.umaproject.org/resources/network-addresses
-        // _oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
-        // _oracleRequestCurrency = IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99));  // DAI
-
-        // Rinkeby UMA Optimistic Oracle addresses
-        // _oracle = OptimisticOracleInterface(address(0x3746badD4d6002666dacd5d7bEE19f60019A8433));
-        // _oracleRequestCurrency = IERC20(address(0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa));  // DAI
-        
-        // Polygon UMA Optimistic Oracle addresses
-        _oracle = OptimisticOracleInterface(address(0xBb1A8db2D4350976a11cdfA60A1d43f97710Da49));
-        // _oracleRequestCurrency = IERC20(address(0x3066818837c5e6eD6601bd5a91B0762877A6B731));  // UMA (couldn't find DAI in whitelist)
-        _oracleRequestCurrency = IERC20(address(0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174));  // USDC
+            if (Network.Kovan == _network) {
+                // Kovan UMA Optimistic Oracle addresses
+                // From https://docs.umaproject.org/resources/network-addresses
+                _oracle = OptimisticOracleInterface(address(0xB1d3A89333BBC3F5e98A991d6d4C1910802986BC));
+                _oracleRequestCurrency = IERC20(address(0xbF7A7169562078c96f0eC1A8aFD6aE50f12e5A99));  // DAI
+            } else if (Network.Rinkeby == _network){
+                // Rinkeby UMA Optimistic Oracle addresses
+                _oracle = OptimisticOracleInterface(address(0x3746badD4d6002666dacd5d7bEE19f60019A8433));
+                _oracleRequestCurrency = IERC20(address(0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa));  // DAI
+            } else if (Network.Polygon == _network){
+                // Polygon UMA Optimistic Oracle addresses
+                _oracle = OptimisticOracleInterface(address(0xBb1A8db2D4350976a11cdfA60A1d43f97710Da49));
+                // _oracleRequestCurrency = IERC20(address(0x3066818837c5e6eD6601bd5a91B0762877A6B731));  // UMA (couldn't find DAI in whitelist)
+                _oracleRequestCurrency = IERC20(address(0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174));  // USDC
+            } else {
+                require(false, "Unsupported network");
+            }
         }
 
         // Schedule the first request (processing in this contract will be triggered by a Keeper when the time comes).
         _oracleRequestDueAt_timestamp = block.timestamp;// + _oracleRequestInterval_sec;
 
         if (actuallyUseIda) {
-        // Kovan superfluid addresses
-        // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
-        // ISuperfluid host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
-        // ISuperToken cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);  // fDAIx
-        // IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x556ba0b3296027Dd7BCEb603aE53dEc3Ac283d2b);
+            if (Network.Kovan == _network) {
+                // (from https://docs.superfluid.finance/superfluid/protocol-developers/networks)
+                _host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
+                _cashToken = ISuperToken(0xe3CB950Cb164a31C66e32c320A800D477019DCFF);  // fDAIx
+                _ida = IInstantDistributionAgreementV1(0x556ba0b3296027Dd7BCEb603aE53dEc3Ac283d2b);
+            } else if (Network.Rinkeby == _network){
+                _host = ISuperfluid(0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6);
+                _cashToken = ISuperToken(0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90);  // fDAIx
+                _ida = IInstantDistributionAgreementV1(0x32E0ecb72C1dDD92B007405F8102c1556624264D);
+            } else if (Network.Polygon == _network){
+                _host = ISuperfluid(0x3E14dC1b13c488a8d5D310918780c983bD5982E7);
+                _cashToken = ISuperToken(0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2);  // DAIx
+                _ida = IInstantDistributionAgreementV1(0xB0aABBA4B2783A72C52956CDEF62d438ecA2d7a1);
+            } else {
+                require(false, "Unsupported network");
+            }
 
-        // Rinkeby superfluid addresses
-        // ISuperfluid host = ISuperfluid(0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6);
-        // ISuperToken cashToken = ISuperToken(0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90);  // fDAIx
-        // IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0x32E0ecb72C1dDD92B007405F8102c1556624264D);
+            _host.callAgreement(
+                _ida,
+                abi.encodeWithSelector(
+                    _ida.createIndex.selector,
+                    _cashToken,
+                    INDEX_ID,
+                    new bytes(0) // placeholder ctx
+                ),
+                new bytes(0) // user data
+            );
 
-        // Polygon superfluid addresses
-        ISuperfluid host = ISuperfluid(0x3E14dC1b13c488a8d5D310918780c983bD5982E7);
-        ISuperToken cashToken = ISuperToken(0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2);  // DAIx
-        IInstantDistributionAgreementV1 ida = IInstantDistributionAgreementV1(0xB0aABBA4B2783A72C52956CDEF62d438ecA2d7a1);
-
-        _cashToken = cashToken;
-        _host = host;
-        _ida = ida;
-
-        _host.callAgreement(
-            _ida,
-            abi.encodeWithSelector(
-                _ida.createIndex.selector,
-                _cashToken,
-                INDEX_ID,
-                new bytes(0) // placeholder ctx
-            ),
-            new bytes(0) // user data
-        );
-
-        // Hard-code some initial recipients of IDA
-        issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
-        issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
+            // Hard-code some initial recipients of IDA
+            issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
+            issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
         }
 
         _decimals = 0;
@@ -204,6 +210,11 @@ contract PerpetualConditionalRewardsToken is
     // Allow contract to receive ETH balance to pay for its Gelato Task upkeep
     // FIXME: Still cannot send ether to the contract via metamask
     receive() external payable {}
+
+    function setOracleRequestString(string calldata requestString) external
+    {
+        _ancillaryData = abi.encodePacked(requestString);     
+    }
 
     function setPayoutAmount(uint256 amount_eth) external
     {
