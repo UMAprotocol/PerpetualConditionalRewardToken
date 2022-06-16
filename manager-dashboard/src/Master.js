@@ -462,7 +462,7 @@ async componentDidMount() {
             {/* <Row className="top"> */}
             <Row>
                 <Col>
-                <h3 className="title">PCR Token Launcher v1</h3>
+                <h3 className="title">PCR Token Launcher v1 (Polygon Mainnet)</h3>
                 </Col>
                 </Row>
 <Row><div>&nbsp;</div></Row>
