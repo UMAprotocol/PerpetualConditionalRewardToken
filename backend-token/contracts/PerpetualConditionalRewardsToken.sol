@@ -73,9 +73,10 @@ contract PerpetualConditionalRewardsToken is
     uint256 public _oracleRequestReward;  // Voluntary fee for oracle requests to incentivize price proposals
 
 
-    address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
+    // This needs to be manually changed in addition to the network variable e.g. _network = Network.Polygon
+    // address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
     // address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
-    // address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
+    address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -122,7 +123,7 @@ contract PerpetualConditionalRewardsToken is
         // Manually initialize ERC20 properties that don't get called from the constructor on clones
         _name = "name";
         _symbol = "symbol";
-        _network = Network.Kovan;
+        _network = Network.Polygon;
     
         //transferOwnership(_owner);
 
@@ -275,31 +276,29 @@ contract PerpetualConditionalRewardsToken is
 
     /// @dev Request verification from the oracle that distribution should be paid out
     function requestOracleVerification() public returns (bool) {
-        address requester = address(this);
-
         _oracleRequestTimestamp = block.timestamp;  // Used as a request ID of sorts
-        int256 proposedPrice = 1 ether;
         if (!actuallyUseOracle) {
             return true;
         }
         
+        // Approve that the request reward can be sent to the Oracle
         _oracleRequestCurrency.approve(address(_oracle), _oracleRequestReward);
         // Request price from oracle to start the process
         _oracle.requestPrice(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestCurrency, _oracleRequestReward);
+    
+        // Configure the price request: do this within the same transaction because it's not possible after a proposal is made
+        // Shorten the liveness so that the question is settled faster (default 7200 seconds = 2h)
+        _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, _oracleRequestLiveness_sec);
+        // Set additional bond to 0 so that just the "final fee" is used as bond for the price proposers
+        _oracle.setBond(_identifier, _oracleRequestTimestamp, _ancillaryData, 0);
+
 
         // Propose that the task has been completed (this requires a bond to be transferred on mainnet)
+        // int256 proposedPrice = 1 ether;
+        // address requester = address(this);
         //_oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
 
         return true;
-    }
-
-    function oracleSetLiveness(uint256 time_sec) public {
-        // Shorten the liveness so that the question is settled faster (default 7200 seconds = 2h)
-        _oracle.setCustomLiveness(_identifier, _oracleRequestTimestamp, _ancillaryData, time_sec);
-    }
-
-    function oracleSetBond(uint256 bond) public {
-        _oracle.setBond(_identifier, _oracleRequestTimestamp, _ancillaryData, bond);
     }
 
     /// @dev Retrieve the verification result, if the verification process has finished
