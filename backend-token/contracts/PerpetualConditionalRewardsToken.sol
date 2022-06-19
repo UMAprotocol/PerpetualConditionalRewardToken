@@ -133,14 +133,19 @@ contract PerpetualConditionalRewardsToken is
         actuallyUseOracle = true;
         actuallyUseIda = true;
 
-        _ancillaryData = abi.encodePacked("q: title: At least 25 transactions on Gelato Polygon network on 6 June 2022? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during 6 June 2022 UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 6 June 2022 UTC and 23:59 6 June 2022 UTC are to be included. This chain explorer link can be used as a reference: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=2022-06-06~2022-06-06. res_data: p1: 0, p2: 1, p3: 0.5. Where p1 corresponds to No, p2 to a Yes, p3 to unknown");
+        _ancillaryData = abi.encodePacked("q: title: Will there be at least 25 transactions on Gelato Polygon network on 15 June 2022? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during 15 June 2022 UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 15 June 2022 UTC and 23:59 15 June 2022 UTC are to be included. All transactions in that date range including failed transactions are to be included. This chain explorer link will be used for resolution: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=2022-06-15~2022-06-15. res_data: p1: 0, p2: 1, p3: 0.5, p4: -57896044618658097711785492504343953926634992332820282019728.792003956564819968. Where p1 corresponds to No, p2 to a Yes, p3 to unknown, and p4 to an early request");
         _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
 
         _oracleRequestTimestamp;
         _payoutAmountOnOracleConfirmation = 1 ether;
         _oracleRequestLiveness_sec = 2 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;
         _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
-        _oracleRequestReward = 1000000;  // USDC 6 decimals
+        
+        if (Network.Polygon == _network) {
+            _oracleRequestReward = 10000000;  // USDC 6 decimals
+        } else {
+            _oracleRequestReward = 0;  // Avoid needing to have the reward currency on testnets
+        }
 
 
         _oracleSettlementOverdue = false;
