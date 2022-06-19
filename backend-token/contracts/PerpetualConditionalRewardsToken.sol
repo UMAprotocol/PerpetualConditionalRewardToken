@@ -78,9 +78,9 @@ contract PerpetualConditionalRewardsToken is
 
 
     // This needs to be manually changed in addition to the network variable e.g. _network = Network.Polygon
-    address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
+    // address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
     // address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
-    // address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
+    address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -128,7 +128,7 @@ contract PerpetualConditionalRewardsToken is
         // Manually initialize ERC20 properties that don't get called from the constructor on clones
         _name = "name";
         _symbol = "symbol";
-        _network = Network.Kovan;
+        _network = Network.Polygon;
     
         //transferOwnership(_owner);
 
@@ -144,17 +144,16 @@ contract PerpetualConditionalRewardsToken is
         _oracleRequestTimestamp;
         _payoutAmountOnOracleConfirmation = 1 ether;
         _oracleRequestLiveness_sec = 2 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;
-        _oracleRequestInterval_sec = 13 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;  // How frequently to request a new result from the oracle
+        _oracleRequestInterval_sec = 5 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;  // How frequently to request a new result from the oracle
         
         if (Network.Polygon == _network) {
-            _oracleRequestReward = 10000000;  // USDC 6 decimals
+            _oracleRequestReward = 5000000;  // USDC 6 decimals
         } else {
             _oracleRequestReward = 0;  // Avoid needing to have the reward currency on testnets
         }
 
         _oracleSettlementOverdue = false;
         _oracleRequestOverdue = false;
-        _oracleRequestDueAt_timestamp = type(uint256).max;
         _oracleSettlementDueAt_timestamp = type(uint256).max;
 
         if (actuallyUseOracle) {
@@ -309,6 +308,7 @@ contract PerpetualConditionalRewardsToken is
         if (!actuallyUseOracle) {
             return true;
         }
+        setOracleRequestString();
         
         // Approve that the request reward can be sent to the Oracle
         _oracleRequestCurrency.approve(address(_oracle), _oracleRequestReward);
@@ -325,7 +325,7 @@ contract PerpetualConditionalRewardsToken is
         // Propose that the task has been completed (this requires a bond to be transferred on mainnet)
         // int256 proposedPrice = 1 ether;
         // address requester = address(this);
-        //_oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
+        // _oracle.proposePrice(requester, _identifier, _oracleRequestTimestamp, _ancillaryData, proposedPrice); 
 
         return true;
     }
@@ -432,7 +432,12 @@ contract PerpetualConditionalRewardsToken is
         int256 resolvedPrice
     ) external override {
         emit PriceSettledEvent(resolvedPrice);
-        //distribute(uint256(_payoutAmountOnOracleConfirmation));
+        if (1 ether == resolvedPrice) {
+            emit OracleVerificationResult(true);
+            distribute(uint256(_payoutAmountOnOracleConfirmation));
+        } else if (0 == resolvedPrice) {
+            emit OracleVerificationResult(false);
+        }
     }
 
      function priceProposed(
@@ -441,8 +446,12 @@ contract PerpetualConditionalRewardsToken is
         bytes memory /*_ancillaryData*/
     ) external override {
         emit PriceProposedEvent();
-        // Schedule for the price resolution to be retrieved after the liveness elapses
-        _oracleSettlementDueAt_timestamp = block.timestamp + _oracleRequestLiveness_sec;
+        
+        if (Network.Polygon != _network) {
+            // Schedule for the price resolution to be retrieved after the liveness elapses
+            // Not needed on mainnet because UMA bots monitor this already
+            _oracleSettlementDueAt_timestamp = block.timestamp + _oracleRequestLiveness_sec;
+        }
     }
 
     function priceDisputed(
@@ -475,8 +484,8 @@ contract PerpetualConditionalRewardsToken is
 
         if (_oracleRequestOverdue) {
             require(requestOracleVerification(), "Oracle request failed.");
-            // Schedule for another request to happen
-            _oracleRequestDueAt_timestamp = block.timestamp + _oracleRequestInterval_sec;
+            // Schedule for another request to happen (independent of when the previos one gets settled)
+            _oracleRequestDueAt_timestamp = _oracleRequestDueAt_timestamp + _oracleRequestInterval_sec;
             _oracleRequestOverdue = false;  // Not strictly necessary
         }
     }
