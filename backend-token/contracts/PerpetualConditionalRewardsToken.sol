@@ -61,16 +61,17 @@ contract PerpetualConditionalRewardsToken is
     Network private _network;
 
 
-    bytes private _ancillaryData = abi.encodePacked("q: title: At least 25 transactions on Gelato Polygon network on 6 June 2022? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during 6 June 2022 UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 6 June 2022 UTC and 23:59 6 June 2022 UTC are to be included. This chain explorer link can be used as a reference: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=2022-06-06~2022-06-06. res_data: p1: 0, p2: 1, p3: 0.5. Where p1 corresponds to No, p2 to a Yes, p3 to unknown");
+    bytes private _ancillaryData;
     bytes32 private _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
     OptimisticOracleInterface _oracle;
     IERC20 public _oracleRequestCurrency;
-
     uint256 private _oracleRequestTimestamp;
-    uint256 public _payoutAmountOnOracleConfirmation = 1 ether;
-    uint256 public _oracleRequestLiveness_sec = 2 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;
-    uint256 public _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
-    uint256 public _oracleRequestReward = 1000000;  // USDC 6 decimals
+
+    uint256 public _payoutAmountOnOracleConfirmation;  // Reward paid to IDA recipients if Oracle returns successful KPI
+    uint256 public _oracleRequestLiveness_sec;  // Duration for which price proposals can be disputed
+    uint256 public _oracleRequestInterval_sec;  // How frequently to request a new result from the oracle
+    uint256 public _oracleRequestReward;  // Voluntary fee for oracle requests to incentivize price proposals
+
 
     address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
     // address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
