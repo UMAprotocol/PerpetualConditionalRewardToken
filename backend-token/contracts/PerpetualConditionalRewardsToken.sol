@@ -11,12 +11,16 @@ import {
     IInstantDistributionAgreementV1
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol";
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 // Initializable protects initialization method from being called multiple times.
 // Initialization is used in place of constructor - required for the contract to be cloneable.
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+
+
+import "./vendor/BokkyPooBahsDateTimeLibrary/BokkyPooBahsDateTimeLibrary.sol";
 
 
 import { OptimisticRequester } from "@uma/core/contracts/oracle/implementation/OptimisticOracle.sol";
@@ -227,8 +231,17 @@ contract PerpetualConditionalRewardsToken is
 
     function setOracleRequestString() public
     {
-        string memory requestString = string.concat("q: title: Will there be at least 25 transactions on Gelato Polygon network on ",
-        "15 June 2022",
+        uint day = BokkyPooBahsDateTimeLibrary.getDay(_oracleRequestDueAt_timestamp);
+        uint month = BokkyPooBahsDateTimeLibrary.getMonth(_oracleRequestDueAt_timestamp);
+        uint year = BokkyPooBahsDateTimeLibrary.getYear(_oracleRequestDueAt_timestamp);
+
+        string memory date_string = "";
+        date_string = string.concat(date_string, Strings.toString(year), "-", Strings.toString(month), "-", Strings.toString(day));
+
+        string memory requestString = "";
+        requestString = string.concat(requestString,
+        "q: title: Will there be at least 25 transactions on Gelato Polygon network on ",
+        date_string,
         "? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during ",
         "15 June 2022",
         " UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 ",
