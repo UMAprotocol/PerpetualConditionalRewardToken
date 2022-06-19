@@ -144,7 +144,7 @@ contract PerpetualConditionalRewardsToken is
         _oracleRequestTimestamp;
         _payoutAmountOnOracleConfirmation = 1 ether;
         _oracleRequestLiveness_sec = 2 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;
-        _oracleRequestInterval_sec = 60;  // How frequently to request a new result from the oracle
+        _oracleRequestInterval_sec = 13 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;  // How frequently to request a new result from the oracle
         
         if (Network.Polygon == _network) {
             _oracleRequestReward = 10000000;  // USDC 6 decimals
@@ -232,25 +232,25 @@ contract PerpetualConditionalRewardsToken is
 
     function setOracleRequestString() public
     {
-        uint day = BokkyPooBahsDateTimeLibrary.getDay(_oracleRequestDueAt_timestamp);
-        uint month = BokkyPooBahsDateTimeLibrary.getMonth(_oracleRequestDueAt_timestamp);
-        uint year = BokkyPooBahsDateTimeLibrary.getYear(_oracleRequestDueAt_timestamp);
-
-        string memory date_string = string.concat(Strings.toString(year), "-", Strings.toString(month), "-", Strings.toString(day));
+        uint requestIntervalStartTimestamp = BokkyPooBahsDateTimeLibrary.subDays(_oracleRequestDueAt_timestamp, 1);
+        string memory startDate_string = string.concat(
+            Strings.toString(BokkyPooBahsDateTimeLibrary.getYear(requestIntervalStartTimestamp)), "-",
+            Strings.toString(BokkyPooBahsDateTimeLibrary.getMonth(requestIntervalStartTimestamp)), "-",
+            Strings.toString(BokkyPooBahsDateTimeLibrary.getDay(requestIntervalStartTimestamp)));
 
         string memory requestString = string.concat(
         "q: title: Will there be at least 25 transactions on Gelato Polygon network on ",
-        date_string,
+        startDate_string,
         "? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during ",
-        date_string,
+        startDate_string,
         " UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 ",
-        date_string,
+        startDate_string,
         " UTC and 23:59 ",
-        date_string,
+        startDate_string,
         " UTC are to be included. All transactions in that date range including failed transactions are to be included. This chain explorer link will be used for resolution: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=",
-        date_string,  // could be different date depending on duration of KPI
+        startDate_string,  // could be different date depending on duration of KPI
         "~",
-        date_string,
+        startDate_string,
         ". res_data: p1: 0, p2: 1, p3: 0.5, p4: -57896044618658097711785492504343953926634992332820282019728.792003956564819968. Where p1 corresponds to No, p2 to a Yes, p3 to unknown, and p4 to an early request");
 
         emit AncillaryDataUpdatedEvent(requestString);
