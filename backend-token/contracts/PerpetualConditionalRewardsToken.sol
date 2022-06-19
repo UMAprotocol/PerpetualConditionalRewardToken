@@ -152,8 +152,6 @@ contract PerpetualConditionalRewardsToken is
             _oracleRequestReward = 0;  // Avoid needing to have the reward currency on testnets
         }
 
-        setOracleRequestString();
-
         _oracleSettlementOverdue = false;
         _oracleRequestOverdue = false;
         _oracleRequestDueAt_timestamp = type(uint256).max;
@@ -221,6 +219,9 @@ contract PerpetualConditionalRewardsToken is
             issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
         }
 
+
+        setOracleRequestString();
+
         _decimals = 0;
     }
 
@@ -235,22 +236,23 @@ contract PerpetualConditionalRewardsToken is
         uint month = BokkyPooBahsDateTimeLibrary.getMonth(_oracleRequestDueAt_timestamp);
         uint year = BokkyPooBahsDateTimeLibrary.getYear(_oracleRequestDueAt_timestamp);
 
-        string memory date_string = "";
-        date_string = string.concat(date_string, Strings.toString(year), "-", Strings.toString(month), "-", Strings.toString(day));
+        string memory date_string = string.concat(Strings.toString(year), "-", Strings.toString(month), "-", Strings.toString(day));
 
-        string memory requestString = "";
-        requestString = string.concat(requestString,
+        string memory requestString = string.concat(
         "q: title: Will there be at least 25 transactions on Gelato Polygon network on ",
         date_string,
         "? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during ",
-        "15 June 2022",
+        date_string,
         " UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 ",
-        "15 June 2022",
+        date_string,
         " UTC and 23:59 ",
-        "15 June 2022",
+        date_string,
         " UTC are to be included. All transactions in that date range including failed transactions are to be included. This chain explorer link will be used for resolution: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=",
-        "2022-06-15~2022-06-15",
+        date_string,  // could be different date depending on duration of KPI
+        "~",
+        date_string,
         ". res_data: p1: 0, p2: 1, p3: 0.5, p4: -57896044618658097711785492504343953926634992332820282019728.792003956564819968. Where p1 corresponds to No, p2 to a Yes, p3 to unknown, and p4 to an early request");
+
         emit AncillaryDataUpdatedEvent(requestString);
         _ancillaryData = abi.encodePacked(requestString);     
     }
