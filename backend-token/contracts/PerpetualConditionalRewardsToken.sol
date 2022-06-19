@@ -74,9 +74,9 @@ contract PerpetualConditionalRewardsToken is
 
 
     // This needs to be manually changed in addition to the network variable e.g. _network = Network.Polygon
-    // address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
+    address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
     // address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
-    address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
+    // address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -88,6 +88,7 @@ contract PerpetualConditionalRewardsToken is
     event PriceProposedEvent();
     event PriceSettledEvent(int256);
     event OracleVerificationResult(bool);
+    event AncillaryDataUpdatedEvent(string);
     event UpkeepPerformedEvent();
 
     // Keepers will monitor these variables and initiate oracle requests/settlements when needed
@@ -123,7 +124,7 @@ contract PerpetualConditionalRewardsToken is
         // Manually initialize ERC20 properties that don't get called from the constructor on clones
         _name = "name";
         _symbol = "symbol";
-        _network = Network.Polygon;
+        _network = Network.Kovan;
     
         //transferOwnership(_owner);
 
@@ -134,7 +135,6 @@ contract PerpetualConditionalRewardsToken is
         actuallyUseOracle = true;
         actuallyUseIda = true;
 
-        _ancillaryData = abi.encodePacked("q: title: Will there be at least 25 transactions on Gelato Polygon network on 15 June 2022? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during 15 June 2022 UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 15 June 2022 UTC and 23:59 15 June 2022 UTC are to be included. All transactions in that date range including failed transactions are to be included. This chain explorer link will be used for resolution: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=2022-06-15~2022-06-15. res_data: p1: 0, p2: 1, p3: 0.5, p4: -57896044618658097711785492504343953926634992332820282019728.792003956564819968. Where p1 corresponds to No, p2 to a Yes, p3 to unknown, and p4 to an early request");
         _identifier = bytes32(abi.encodePacked("YES_OR_NO_QUERY"));
 
         _oracleRequestTimestamp;
@@ -148,6 +148,7 @@ contract PerpetualConditionalRewardsToken is
             _oracleRequestReward = 0;  // Avoid needing to have the reward currency on testnets
         }
 
+        setOracleRequestString();
 
         _oracleSettlementOverdue = false;
         _oracleRequestOverdue = false;
@@ -220,11 +221,24 @@ contract PerpetualConditionalRewardsToken is
     }
 
     // Allow contract to receive ETH balance to pay for its Gelato Task upkeep
-    // FIXME: Still cannot send ether to the contract via metamask
+    // TODO: Cannot send ether to the contract via metamask on Kovan
+    // Works fine on Polygon though
     receive() external payable {}
 
-    function setOracleRequestString(string calldata requestString) external
+    function setOracleRequestString() public
     {
+        string memory requestString = string.concat("q: title: Will there be at least 25 transactions on Gelato Polygon network on ",
+        "15 June 2022",
+        "? description: This is a yes or no question based on historical data. If the contract address 0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA on Polygon Mainnet network (chain ID 137) executed 25 or more transactions of any type during ",
+        "15 June 2022",
+        " UTC then this market will resolve to \"Yes\". Otherwise this market will resolve to \"No\". Transactions with timestamps between 00:00 ",
+        "15 June 2022",
+        " UTC and 23:59 ",
+        "15 June 2022",
+        " UTC are to be included. All transactions in that date range including failed transactions are to be included. This chain explorer link will be used for resolution: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=",
+        "2022-06-15~2022-06-15",
+        ". res_data: p1: 0, p2: 1, p3: 0.5, p4: -57896044618658097711785492504343953926634992332820282019728.792003956564819968. Where p1 corresponds to No, p2 to a Yes, p3 to unknown, and p4 to an early request");
+        emit AncillaryDataUpdatedEvent(requestString);
         _ancillaryData = abi.encodePacked(requestString);     
     }
 
