@@ -352,7 +352,8 @@ contract PerpetualConditionalRewardsToken is
             if (!actuallyUseIda) {
                 return;
             }
-            distribute(_payoutAmountOnOracleConfirmation);
+            // Leave the distribution to the priceSettled callback (how it will be done on mainnet)
+            // distribute(_payoutAmountOnOracleConfirmation);
         }
     }
 
