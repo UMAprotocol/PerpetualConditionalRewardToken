@@ -53,7 +53,7 @@ contract PerpetualConditionalRewardsToken is
     KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Chain-Link Keepers
     OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
-    // These ERC20 parameters are redeclared in child class because they cannot be called in the constructor with clones.
+    // These ERC20 parameters are set in the initializer to support clones
     string private _name;
     string private _symbol;
 
@@ -112,6 +112,7 @@ contract PerpetualConditionalRewardsToken is
         // Clones won't have the constructor called so will be unaffected.
         // Prevent the implementation contract from being used (its sole purpose is to be cloned).
         //_disableInitializers();
+        // FIXME: remove this so base token can't be used (just for dev work)
         initialize();
     }
 
@@ -126,11 +127,14 @@ contract PerpetualConditionalRewardsToken is
         ) public //initializer
     {
         // Manually initialize ERC20 properties that don't get called from the constructor on clones
+        // TODO switch back to Initializable ERC20 token eg ERC20Upgradeable
         _name = "name";
         _symbol = "symbol";
+
+
         _network = Network.Polygon;
     
-        //transferOwnership(_owner);
+        //transferOwnership(_owner);  // FIXME: reinstate ownable
 
         // Manually initialize class members that don't get initialized in cloning
         ops = _gelatoOpsAddress;
@@ -247,9 +251,9 @@ contract PerpetualConditionalRewardsToken is
         " UTC and 23:59 ",
         startDate_string,
         " UTC are to be included. All transactions in that date range including failed transactions are to be included. This chain explorer link will be used for resolution: https://polygonscan.com/address/0x7598e84B2E114AB62CAB288CE5f7d5f6bad35BbA?agerange=",
-        startDate_string,  // could be different date depending on duration of KPI
-        "~",
         startDate_string,
+        "~",
+        startDate_string,  // could be different date depending on duration of KPI
         ". res_data: p1: 0, p2: 1, p3: 0.5, p4: -57896044618658097711785492504343953926634992332820282019728.792003956564819968. Where p1 corresponds to No, p2 to a Yes, p3 to unknown, and p4 to an early request");
 
         emit AncillaryDataUpdatedEvent(requestString);
