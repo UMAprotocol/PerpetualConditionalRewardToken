@@ -62,9 +62,9 @@ class ChangeContractProperties extends Component {
             </Row>
             <Row>            
                 <ChangeContractProperty
-                    propertyDisplayName="Payout amount"
+                    propertyDisplayName="Payout amount on KPI success"
                     propertyId="payoutAmount"
-                    propertyUnits="DAIx"
+                    propertyUnits="USDCx"
                     updatePropertyFunction={this.props.changePayoutAmount}
                     getPropertyFunction={this.props.getPayoutAmount}
                     currentPropertyValue={this.props.currentPayoutAmount}
