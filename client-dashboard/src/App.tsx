@@ -16,7 +16,7 @@ import { ListIndexEventsForSubscription } from "./features/ListIndexEventsForSub
 import { ListIndexSubscriptions } from "./features/ListIndexSubscription";
 import { ListEvents } from "./features/ListEvents";
 
-let tokenContractAddress = "0x62B7bbfF2193F03931861D1b1aF097c1b3A8fBf5";
+let tokenContractAddress = "0x3056203DF5002FcD633403279f29E8eb72D492D1";
 
 function App() {
     const [superfluidSdk, setSuperfluidSdk] = useState<Framework | undefined>();
@@ -107,8 +107,8 @@ function App() {
                         <Box maxWidth="{false}">
   <br></br><hr></hr><br></br>
                             <Typography variant="caption" sx={{ mb: 4 }}>
-                                {/* <em>You are on network [{chainId}] and your wallet address 
-                                is [{signerAddress}].</em> */}
+                                <em>You are on network [{chainId}] and your wallet address 
+                                is [{signerAddress}].</em>
                             </Typography>
                 <Typography variant="h4" component="h4" gutterBottom>
                 Client dashboard: PCRx token
@@ -144,7 +144,7 @@ function App() {
                                         </a> (dummy query data still). Requests being made, price being proposed, AND the result being <em>settled</em>
                                         </li>
     <li>
-                                    Token contract: <a href="https://kovan.etherscan.io/address/0x62B7bbfF2193F03931861D1b1aF097c1b3A8fBf5#tokentxns">
+                                    Token contract: <a href="https://rinkeby.etherscan.io/address/0x3056203DF5002FcD633403279f29E8eb72D492D1#tokentxns">
                                         {tokenContractAddress}</a> IDA distribution events triggered by the Oracle result are listed above in the client dashboard)!
                                         </li>
                                         

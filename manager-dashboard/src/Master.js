@@ -462,7 +462,7 @@ async componentDidMount() {
             {/* <Row className="top"> */}
             <Row>
                 <Col>
-                <h3 className="title">PCR Token Launcher v1 (Polygon Mainnet)</h3>
+                <h3 className="title">PCR Token Launcher v1</h3>
                 </Col>
                 </Row>
 <Row><div>&nbsp;</div></Row>
@@ -500,8 +500,9 @@ Step 1: Create and customize your PCR token
                 <Card className="notcreateToken">
                     PCR Token address:&nbsp;
                     {`${this.state.pcrContract_address.toString().substring(0, 6)}...${this.state.pcrContract_address.toString().substring(38)}`}
-                    {/* &nbsp;<a href={`https://rinkeby.etherscan.io/address/${this.state.pcrContract_address.toString()}`} target="_blank"> */}
-                    <a href={`https://polygonscan.com/address/${this.state.pcrContract_address.toString()}`} target="_blank"> (view)</a>
+                    <a href={`https://rinkeby.etherscan.io/address/${this.state.pcrContract_address.toString()}`} target="_blank"> (view)</a>
+                    {/* <a href={`https://kovan.etherscan.io/address/${this.state.pcrContract_address.toString()}`} target="_blank"> (view)</a> */}
+                    {/* <a href={`https://polygonscan.com/address/${this.state.pcrContract_address.toString()}`} target="_blank"> (view)</a> */}
                 </Card>
                     <Button onClick={this.addCurrentPCRTokenToMetamask} className="createToken">Add token to MetaMask</Button>
                 </>
