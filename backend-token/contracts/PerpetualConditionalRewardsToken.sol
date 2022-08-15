@@ -79,8 +79,8 @@ contract PerpetualConditionalRewardsToken is
 
     // This needs to be manually changed in addition to the network variable e.g. _network = Network.Polygon
     // address public immutable _gelatoOpsAddress = address(0x6c3224f9b3feE000A444681d5D45e4532D5BA531);  // Kovan
-    // address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
-    address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
+    address public immutable _gelatoOpsAddress = address(0x8c089073A9594a4FB03Fa99feee3effF0e2Bc58a);  // Rinkeby
+    // address public immutable _gelatoOpsAddress = address(0x527a819db1eb0e34426297b03bae11F2f8B3A19E);  // Polygon
 
     ISuperToken private _cashToken;
     ISuperfluid private _host;
@@ -148,7 +148,7 @@ contract PerpetualConditionalRewardsToken is
         _oracleRequestTimestamp;
         _payoutAmountOnOracleConfirmation = 1 ether;
         _oracleRequestLiveness_sec = 2 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;
-        _oracleRequestInterval_sec = 5 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;  // How frequently to request a new result from the oracle
+        _oracleRequestInterval_sec = 1 /*hours*/ * 60 /*min*/ * 60 /*seconds*/;  // How frequently to request a new result from the oracle
         
         if (Network.Polygon == _network) {
             _oracleRequestReward = 5000000;  // USDC 6 decimals
@@ -200,7 +200,7 @@ contract PerpetualConditionalRewardsToken is
             } else if (Network.Polygon == _network){
                 _host = ISuperfluid(0x3E14dC1b13c488a8d5D310918780c983bD5982E7);
                 // _cashToken = ISuperToken(0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2);  // DAIx
-                _cashToken = ISuperToken(0xCAa7349CEA390F89641fe306D93591f87595dc1F);  // fUSDCx
+                _cashToken = ISuperToken(0xCAa7349CEA390F89641fe306D93591f87595dc1F);  // USDCx
                 _ida = IInstantDistributionAgreementV1(0xB0aABBA4B2783A72C52956CDEF62d438ecA2d7a1);
             } else {
                 require(false, "Unsupported network");
@@ -223,19 +223,17 @@ contract PerpetualConditionalRewardsToken is
         }
 
 
-        setOracleRequestString();
+        setOracleRequestString(_oracleRequestDueAt_timestamp);
 
         _decimals = 0;
     }
 
-    // Allow contract to receive ETH balance to pay for its Gelato Task upkeep
-    // TODO: Cannot send ether to the contract via metamask on Kovan
-    // Works fine on Polygon though
+    // Allow contract to receive ETH/MATIC balance to pay for its Gelato Task upkeep
     receive() external payable {}
 
-    function setOracleRequestString() public
+    function setOracleRequestString(uint256 timeToGetYesterdayOf) public
     {
-        uint requestIntervalStartTimestamp = BokkyPooBahsDateTimeLibrary.subDays(_oracleRequestDueAt_timestamp, 1);
+        uint requestIntervalStartTimestamp = BokkyPooBahsDateTimeLibrary.subDays(timeToGetYesterdayOf, 1);
         string memory startDate_string = string.concat(
             Strings.toString(BokkyPooBahsDateTimeLibrary.getYear(requestIntervalStartTimestamp)), "-",
             Strings.toString(BokkyPooBahsDateTimeLibrary.getMonth(requestIntervalStartTimestamp)), "-",
@@ -312,7 +310,8 @@ contract PerpetualConditionalRewardsToken is
         if (!actuallyUseOracle) {
             return true;
         }
-        setOracleRequestString();
+        // This must be manually called temporarily for some faster dev iterations
+        // setOracleRequestString(_oracleRequestDueAt_timestamp);
         
         // Approve that the request reward can be sent to the Oracle
         _oracleRequestCurrency.approve(address(_oracle), _oracleRequestReward);

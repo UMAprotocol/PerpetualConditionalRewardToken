@@ -3,7 +3,7 @@ import { Event_OrderBy, OrderDirection, SentEvent } from "@superfluid-finance/sd
 import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 import React from "react";
 
-let queryChainId = 42;
+let queryChainId = 4;
 let tokenContractAddress = "0x62B7bbfF2193F03931861D1b1aF097c1b3A8fBf5";
 
 
