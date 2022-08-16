@@ -13,14 +13,15 @@
     "license": "MIT",
     "devDependencies": {
         "@decentral.ee/web3-helpers": "^0.5.3",
-        "@openzeppelin/contracts": "^4.5.0",
+        "@openzeppelin/contracts": "^4.6.0",
+        "@openzeppelin/contracts-upgradeable": "^4.6.0",
         "@openzeppelin/test-helpers": "^0.5.15",
         "@superfluid-finance/ethereum-contracts": "^1.1.0",
         "@superfluid-finance/js-sdk": "^0.5.5",
         "@truffle/contract": "^4.3.42",
         "@truffle/hdwallet-provider": "^1.7.0",
+        "@uma/core": "*",
         "dotenv": "^10.0.0",
-        "truffle": "^5.4.21",
-        "@uma/core": "*"
+        "truffle": "^5.4.21"
     }
 }

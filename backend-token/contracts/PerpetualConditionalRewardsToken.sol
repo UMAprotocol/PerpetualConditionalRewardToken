@@ -13,11 +13,17 @@ import {
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+
+// For cloning, we require an Initializable version of ERC20: get this with ERC20Upgradeable.
+// (Otherwise we can't pass the immutable ERC20 name and symbol arguments to our clone while cloning).
+// Initialization is used in place of a constructor, which is required for the contract to be cloneable.
+// Being Initializable protects the initialization method from being called multiple times (as of v4.6.0)
+import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+
+// Standard ERC20 tokens are also used in this contract for reward currency etc.
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-// Initializable protects initialization method from being called multiple times.
-// Initialization is used in place of constructor - required for the contract to be cloneable.
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 
 import "./vendor/BokkyPooBahsDateTimeLibrary/BokkyPooBahsDateTimeLibrary.sol";
@@ -47,16 +53,11 @@ enum Network {
 
 contract PerpetualConditionalRewardsToken is
     // Ownable,
-    ERC20,
-    Initializable,  // For cloning
+    ERC20Upgradeable,
     OpsReady,  // Allow monitoring and triggering of upkeep by Gelato Tasks
     KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Chain-Link Keepers
     OptimisticRequester  // Receive callbacks on Oracle price settlement
 {
-    // These ERC20 parameters are set in the initializer to support clones
-    string private _name;
-    string private _symbol;
-
     bool private actuallyUseOracle = true;
     bool private actuallyUseIda = true;
 
@@ -102,37 +103,30 @@ contract PerpetualConditionalRewardsToken is
     uint256 public _oracleRequestDueAt_timestamp = type(uint256).max;
     uint256 public _oracleSettlementDueAt_timestamp = type(uint256).max;
 
-    constructor(
-        string memory name,
-        string memory symbol
-        )
-        ERC20(name, symbol)  // This is required to inherit from ERC20 - does it make sense for the base implementation?
+    constructor()
         OpsReady(_gelatoOpsAddress)
     {
-        // Clones won't have the constructor called so will be unaffected.
         // Prevent the implementation contract from being used (its sole purpose is to be cloned).
-        //_disableInitializers();
-        // FIXME: remove this so base token can't be used (just for dev work)
-        initialize();
+        // Clones won't have the constructor called so will be unaffected.
+        // _disableInitializers();
+
+        // FIXME: remove this and disable initializers so the base token can't be used (only enabled for dev work)
+        initialize("PCR non-clone", "PCRx");
     }
 
     function initialize(
-        // string memory name,
-        // string memory symbol,
+        string memory name,
+        string memory symbol
         // address _owner
         /*
         ISuperToken cashToken,
         ISuperfluid host,
         IInstantDistributionAgreementV1 ida)*/
-        ) public //initializer
+        ) public initializer 
     {
-        // Manually initialize ERC20 properties that don't get called from the constructor on clones
-        // TODO switch back to Initializable ERC20 token eg ERC20Upgradeable
-        _name = "name";
-        _symbol = "symbol";
+        __ERC20_init(name, symbol);
 
-
-        _network = Network.Polygon;
+        _network = Network.Rinkeby;
     
         //transferOwnership(_owner);  // FIXME: reinstate ownable
 
@@ -287,7 +281,7 @@ contract PerpetualConditionalRewardsToken is
         uint256 currentAmount = balanceOf(beneficiary);
 
         // first try to do ERC20 mint of the token that will entitle holder to rewards
-        ERC20._mint(beneficiary, amount);
+        _mint(beneficiary, amount);
 
         // then adjust beneficiary subscription units
         _host.callAgreement(
@@ -387,10 +381,14 @@ contract PerpetualConditionalRewardsToken is
     // TODO: Prompt the new token holder to accept the SuperFluid IDA
     // TODO: Prevent distributions from being locked in UniSwap etc that cannot approve the IDA
     function _transfer(address sender, address recipient, uint256 amount) internal override {
-        uint128 senderUnits = uint128(ERC20.balanceOf(sender));
-        uint128 recipientUnits = uint128(ERC20.balanceOf(recipient));
+        uint128 senderUnits = uint128(balanceOf(sender));
+        uint128 recipientUnits = uint128(balanceOf(recipient));
         // first try to do ERC20 transfer
-        ERC20._transfer(sender, recipient, amount);
+        _transfer(sender, recipient, amount);
+
+        // Solidity compiler versions > 0.8.4 and less than 1.0.0 will mistakenly report
+        // the following lines as unreachable when using ERC20Upgradeable transfer.
+        // See https://github.com/ethereum/solidity/issues/11522
 
         // Remove the old owner from IDA entitlement
         _host.callAgreement(

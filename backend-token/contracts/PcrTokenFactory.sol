@@ -11,14 +11,17 @@ contract PerpetualConditionalRewardsTokenFactory {
     address public newPcrTokenAddress;
 
     constructor() {
-        pcrTokenImplementation = address(new PerpetualConditionalRewardsToken("PCRbase", "PCRx"));
+        pcrTokenImplementation = address(new PerpetualConditionalRewardsToken());
     }
 
-    function createPcrToken() external returns (address) {
-        // TODO: use deterministic clone address creation
+    function createPcrToken(
+        string memory name,
+        string memory symbol
+        ) external returns (address) {
+        // TODO: use deterministic clone address creation with salt
         address clone = Clones.clone(pcrTokenImplementation);
         newPcrTokenAddress = clone;
-        PerpetualConditionalRewardsToken(payable(clone)).initialize();//"PCRclone", "PCRx1", msg.sender);
-        return clone;  // Why does this not return?
+        PerpetualConditionalRewardsToken(payable(clone)).initialize(name, symbol);
+        return clone;
     }
 }
