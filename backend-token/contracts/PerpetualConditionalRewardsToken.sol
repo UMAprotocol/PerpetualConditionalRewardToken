@@ -301,13 +301,13 @@ contract PerpetualConditionalRewardsToken is
     }
 
     /// @dev Request verification from the oracle that distribution should be paid out
-    function requestOracleVerification() public returns (bool) {
+    function requestOracleVerification() public onlyOps returns (bool) {
         _oracleRequestTimestamp = block.timestamp;  // Used as a request ID of sorts
         if (!actuallyUseOracle) {
             return true;
         }
-        // This must be manually called temporarily for some faster dev iterations
-        // setOracleRequestString(_oracleRequestDueAt_timestamp);
+        // [comment during dev and manually call for faster dev iterations]
+        setOracleRequestString(_oracleRequestDueAt_timestamp);
         
         // Approve that the request reward can be sent to the Oracle
         _oracleRequestCurrency.approve(address(_oracle), _oracleRequestReward);
@@ -346,24 +346,23 @@ contract PerpetualConditionalRewardsToken is
     }
 
     /// @dev Distribute predefined amount among all token holders IFF verification succeeded
-    function distributeIfOracleVerificationSucceeded() public /*onlyOwner or only gelato*/ {
+    function distributeIfOracleVerificationSucceeded() public onlyOps {
         if (getOracleVerificationResult()) {
             if (!actuallyUseIda) {
                 return;
             }
-            // Leave the distribution to the priceSettled callback (how it will be done on mainnet)
-            // distribute(_payoutAmountOnOracleConfirmation);
+            distribute(_payoutAmountOnOracleConfirmation);
         }
     }
 
     /// @dev Distribute `amount` of cash among all token holders
-    // TODO: restrict who can call this lol
-    function distribute(uint256 cashAmount) public /*onlyOwner*/ {
+    function distribute(uint256 cashAmount) internal {
         (uint256 actualCashAmount,) = _ida.calculateDistribution(
             _cashToken,
             address(this), INDEX_ID,
             cashAmount);
 
+        // Funding wallet for demo/dev purposes
         //_cashToken.transferFrom(owner(), address(this), actualCashAmount);
 
         _host.callAgreement(
@@ -428,7 +427,6 @@ contract PerpetualConditionalRewardsToken is
      *  ancillaryData ancillary data of the price being requested.
      *  price price that was resolved by the escalation process.
      */
-     // TODO: allow distribute() to be called from the oracle without running out of gas
     function priceSettled (
         bytes32 /*identifier*/,
         uint256 /*timestamp*/,
@@ -438,7 +436,9 @@ contract PerpetualConditionalRewardsToken is
         emit PriceSettledEvent(resolvedPrice);
         if (1 ether == resolvedPrice) {
             emit OracleVerificationResult(true);
-            distribute(uint256(_payoutAmountOnOracleConfirmation));
+            // TODO: allow distribute() to be called from the oracle without running out of gas
+            // Will be settled on gelato upkeep instead
+            //distribute(uint256(_payoutAmountOnOracleConfirmation));
         } else if (0 == resolvedPrice) {
             emit OracleVerificationResult(false);
         }
