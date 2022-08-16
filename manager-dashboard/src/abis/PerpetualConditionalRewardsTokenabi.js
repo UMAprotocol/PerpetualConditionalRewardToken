@@ -489,19 +489,6 @@ export const perpetualConditionalRewardsTokenabi = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "cashAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "distribute",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [],
 		"name": "distributeIfOracleVerificationSucceeded",
 		"outputs": [],

@@ -227,7 +227,7 @@ contract PerpetualConditionalRewardsToken is
     // Allow contract to receive ETH/MATIC balance to pay for its Gelato Task upkeep
     receive() external payable {}
 
-    function setOracleRequestString(uint256 timeToGetYesterdayOf) public
+    function setOracleRequestString(uint256 timeToGetYesterdayOf) public onlyOwner
     {
         uint requestIntervalStartTimestamp = BokkyPooBahsDateTimeLibrary.subDays(timeToGetYesterdayOf, 1);
         string memory startDate_string = string.concat(
@@ -254,22 +254,22 @@ contract PerpetualConditionalRewardsToken is
         _ancillaryData = abi.encodePacked(requestString);     
     }
 
-    function setPayoutAmount(uint256 amount_eth) external
+    function setPayoutAmount(uint256 amount_eth) external onlyOwner
     {
         _payoutAmountOnOracleConfirmation = amount_eth;
     }
 
-    function setOracleRequestInterval(uint256 interval_sec) external
+    function setOracleRequestInterval(uint256 interval_sec) external onlyOwner
     {
         _oracleRequestInterval_sec = interval_sec;
     }
     
-    function setOracleRequestReward(uint256 amount_usdc) external
+    function setOracleRequestReward(uint256 amount_usdc) external onlyOwner
     {
         _oracleRequestReward = amount_usdc;
     }
 
-    function setOracleRequestLiveness(uint256 liveness_sec) external
+    function setOracleRequestLiveness(uint256 liveness_sec) external onlyOwner
     {
         _oracleRequestLiveness_sec = liveness_sec;
     }
