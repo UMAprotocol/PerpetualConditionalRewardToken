@@ -21,7 +21,7 @@ contract PerpetualConditionalRewardsTokenFactory {
         // TODO: use deterministic clone address creation with salt
         address clone = Clones.clone(pcrTokenImplementation);
         newPcrTokenAddress = clone;
-        PerpetualConditionalRewardsToken(payable(clone)).initialize(name, symbol);
+        PerpetualConditionalRewardsToken(payable(clone)).initialize(name, symbol, msg.sender);
         return clone;
     }
 }

@@ -1,19 +1,21 @@
 export const perpetualConditionalRewardsTokenabi = [
 	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
 				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "symbol",
+				"name": "",
 				"type": "string"
 			}
 		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
+		"name": "AncillaryDataUpdatedEvent",
+		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -45,12 +47,44 @@ export const perpetualConditionalRewardsTokenabi = [
 		"inputs": [
 			{
 				"indexed": false,
+				"internalType": "uint8",
+				"name": "version",
+				"type": "uint8"
+			}
+		],
+		"name": "Initialized",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
 			}
 		],
 		"name": "OracleVerificationResult",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
 		"type": "event"
 	},
 	{
@@ -144,6 +178,19 @@ export const perpetualConditionalRewardsTokenabi = [
 	},
 	{
 		"inputs": [],
+		"name": "_oracleRequestCurrency",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "_oracleRequestDueAt_timestamp",
 		"outputs": [
 			{
@@ -189,6 +236,19 @@ export const perpetualConditionalRewardsTokenabi = [
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "_oracleRequestReward",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -499,7 +559,23 @@ export const perpetualConditionalRewardsTokenabi = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "symbol",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			}
+		],
 		"name": "initialize",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -558,6 +634,19 @@ export const perpetualConditionalRewardsTokenabi = [
 	{
 		"inputs": [],
 		"name": "ops",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
 		"outputs": [
 			{
 				"internalType": "address",
@@ -676,6 +765,13 @@ export const perpetualConditionalRewardsTokenabi = [
 	},
 	{
 		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "requestOracleVerification",
 		"outputs": [
 			{
@@ -709,6 +805,32 @@ export const perpetualConditionalRewardsTokenabi = [
 			}
 		],
 		"name": "setOracleRequestLiveness",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount_usdc",
+				"type": "uint256"
+			}
+		],
+		"name": "setOracleRequestReward",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "timeToGetYesterdayOf",
+				"type": "uint256"
+			}
+		],
+		"name": "setOracleRequestString",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -802,6 +924,19 @@ export const perpetualConditionalRewardsTokenabi = [
 				"type": "bool"
 			}
 		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},

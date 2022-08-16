@@ -12,7 +12,7 @@ import {
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol";
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 // For cloning, we require an Initializable version of ERC20: get this with ERC20Upgradeable.
 // (Otherwise we can't pass the immutable ERC20 name and symbol arguments to our clone while cloning).
@@ -52,7 +52,7 @@ enum Network {
     }
 
 contract PerpetualConditionalRewardsToken is
-    // Ownable,
+    OwnableUpgradeable,
     ERC20Upgradeable,
     OpsReady,  // Allow monitoring and triggering of upkeep by Gelato Tasks
     KeeperCompatibleInterface,  // Allow monitoring and triggering of upkeep by Chain-Link Keepers
@@ -108,16 +108,16 @@ contract PerpetualConditionalRewardsToken is
     {
         // Prevent the implementation contract from being used (its sole purpose is to be cloned).
         // Clones won't have the constructor called so will be unaffected.
-        // _disableInitializers();
+        _disableInitializers();
 
         // FIXME: remove this and disable initializers so the base token can't be used (only enabled for dev work)
-        initialize("PCR non-clone", "PCRx");
+        //initialize("PCR non-clone", "PCRx", _msgSender());
     }
 
     function initialize(
         string memory name,
-        string memory symbol
-        // address _owner
+        string memory symbol,
+        address _owner
         /*
         ISuperToken cashToken,
         ISuperfluid host,
@@ -125,10 +125,9 @@ contract PerpetualConditionalRewardsToken is
         ) public initializer 
     {
         __ERC20_init(name, symbol);
+        __Ownable_init();
 
         _network = Network.Rinkeby;
-    
-        //transferOwnership(_owner);  // FIXME: reinstate ownable
 
         // Manually initialize class members that don't get initialized in cloning
         ops = _gelatoOpsAddress;
@@ -212,15 +211,18 @@ contract PerpetualConditionalRewardsToken is
             );
 
             // Hard-code some initial recipients of IDA
-            issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
-            issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
+            //issue(address(0x8C9E7eE24B97d118F4b0f28E4Da89D349db2F28B), 10);
+            //issue(address(0xCDA9908fCA6029f04d177CD07BFeaAe54E0739A5), 10);
         }
 
 
         setOracleRequestString(_oracleRequestDueAt_timestamp);
 
         _decimals = 0;
+        
+        transferOwnership(_owner);
     }
+
 
     // Allow contract to receive ETH/MATIC balance to pay for its Gelato Task upkeep
     receive() external payable {}
@@ -276,14 +278,14 @@ contract PerpetualConditionalRewardsToken is
         return _decimals;
     }
 
-    /// @dev Issue new `amount` of gifts to `beneficiary`
-    function issue(address beneficiary, uint256 amount) public /*onlyOwner*/ {
+    /// @dev Issue new `amount` of tokens to `beneficiary`
+    function issue(address beneficiary, uint256 amount) public onlyOwner {
         uint256 currentAmount = balanceOf(beneficiary);
 
-        // first try to do ERC20 mint of the token that will entitle holder to rewards
+        // First do ERC20 mint of the token that will entitle holder to rewards
         _mint(beneficiary, amount);
 
-        // then adjust beneficiary subscription units
+        // Then adjust beneficiary subscription units
         _host.callAgreement(
             _ida,
             abi.encodeWithSelector(
@@ -344,7 +346,7 @@ contract PerpetualConditionalRewardsToken is
     }
 
     /// @dev Distribute predefined amount among all token holders IFF verification succeeded
-    function distributeIfOracleVerificationSucceeded() public /*onlyOwner*/ {
+    function distributeIfOracleVerificationSucceeded() public /*onlyOwner or only gelato*/ {
         if (getOracleVerificationResult()) {
             if (!actuallyUseIda) {
                 return;

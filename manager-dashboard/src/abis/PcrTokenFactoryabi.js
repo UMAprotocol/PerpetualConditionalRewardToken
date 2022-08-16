@@ -5,7 +5,18 @@ export const PCRTokenFactoryabi = [
 		"type": "constructor"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "symbol",
+				"type": "string"
+			}
+		],
 		"name": "createPcrToken",
 		"outputs": [
 			{
